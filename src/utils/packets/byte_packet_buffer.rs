@@ -1,8 +1,11 @@
+use std::fmt::format;
 use std::fs::read;
-use crate::utils::bitwise::{merge_two_numbers_as, merge_two_numbers_with_offset_as, merge_u16_as_u32, merge_u8_as_u16};
+
+use crate::utils::bitwise::{has_flag, JUMP_FLAG, merge_two_numbers_as, merge_u16_as_u32, merge_u8_as_u16};
 use crate::utils::common::Result;
 
 const BUFFER_MAX_SIZE: usize = 512;
+const MAX_JUMP_COUNT: usize = 5;
 
 /// Hold track of the packet contents and where we are
 pub struct BytePacketBuffer {
@@ -78,5 +81,59 @@ impl BytePacketBuffer {
     /// Read four bytes, stepping four steps forward
     fn read_u32(&mut self) -> Result<u32> {
         Ok(merge_u16_as_u32(self.read_u16()?, self.read_u16()?))
+    }
+
+    /// Reads a domain name into the outstr buffer, returning the domain name taking labels into consideration.
+    fn read_qname(&mut self, outstr: &mut String) -> Result<()> {
+        let mut pos = self.pos();
+
+        let mut jumped = false;
+        let mut jumps_performed = 0;
+
+        let mut delim = "";  // empty because we don't want our first iteration to start with a delimiter (.)
+
+        loop {
+            // Prevent DNS cycle attacks
+            if jumps_performed > MAX_JUMP_COUNT {
+                return Err(format!("Exceeded limit of allowed jumps. ({})", MAX_JUMP_COUNT).into());
+            }
+
+            let len = self.get(pos)?;
+
+            if has_flag(len, JUMP_FLAG) {
+                // Update buffer position
+                if !jumped {
+                    self.seek(pos + 2)?;
+                }
+
+                let offset = merge_u8_as_u16(len ^ 0xC0, self.get(pos + 1)?);
+                pos = offset as usize;
+
+                jumped = true;
+                jumps_performed += 1;
+                continue;
+            } else {
+                pos += 1;
+
+                // Domain name is terminated
+                if len == 0 {
+                    break;
+                }
+
+                outstr.push_str(delim);
+
+                let str_buffer = self.get_range(pos, len as usize)?;
+                outstr.push_str(&String::from_utf8_lossy(str_buffer).to_lowercase());
+
+                delim = ".";
+                pos += len as usize; // move length of label forward
+            }
+        }
+
+        if !jumped {
+            self.seek(pos)?;
+        }
+
+        Ok(())
     }
 }

@@ -1,3 +1,5 @@
+pub const JUMP_FLAG: u8 = 0xC0;
+
 /// Merge two numbers with offset, this way you can merge two u8's that are behind
 /// each other into their corresponding u16 value.
 fn merge_two_numbers_with_offset_as<T, R>(n1: T, n2: T, offset: usize) -> R {
@@ -12,4 +14,8 @@ pub fn merge_u8_as_u16(n1: u8, n2: u8) -> u16 {
 /// Merge two succeeding u16's into a u32.
 pub fn merge_u16_as_u32(n1: u16, n2: u16) -> u32 {
     merge_two_numbers_with_offset_as(n1, n2, 16)
+}
+
+pub fn has_flag(value: u8, flag: u8) -> bool {
+    value & flag == flag
 }
