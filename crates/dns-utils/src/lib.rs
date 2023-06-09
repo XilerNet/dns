@@ -8,6 +8,7 @@ pub mod prelude {
         byte_packet_buffer::BytePacketBuffer,
         dns_packet::DnsPacket,
         result_code::ResultCode,
-        query_type::QueryType
+        query_type::QueryType,
+        dns_record::DnsRecord,
     };
 }

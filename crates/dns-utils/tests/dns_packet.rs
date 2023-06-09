@@ -1,5 +1,7 @@
 use std::fs::File;
 use std::io::Read;
+use std::net::Ipv4Addr;
+use std::str::FromStr;
 
 use dns_utils::prelude::*;
 use shared::prelude::*;
@@ -35,6 +37,18 @@ fn test_create_dns_packet_from_buffer() -> Result<()> {
 
     assert_eq!(packet.questions[0].name, "xiler.net");
     assert_eq!(packet.questions[0].qtype, QueryType::A);
+
+    if let DnsRecord::A { domain, addr, ttl } = &packet.answers[0] {
+        assert_eq!(domain, "xiler.net");
+        assert_eq!(*addr, Ipv4Addr::from_str("104.21.4.85")?);
+        assert_eq!(*ttl, 300);
+    }
+
+    if let DnsRecord::A { domain, addr, ttl } = &packet.answers[1] {
+        assert_eq!(domain, "xiler.net");
+        assert_eq!(*addr, Ipv4Addr::from_str("172.67.131.221")?);
+        assert_eq!(*ttl, 300);
+    }
 
     Ok(())
 }
