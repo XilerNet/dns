@@ -1,0 +1,11 @@
+# ide
+.idea
+.vscode
+
+# Lock files
+*.lock
+
+# Build files
+build/
+dist/
+target/
