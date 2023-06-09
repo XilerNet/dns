@@ -42,7 +42,7 @@ impl BytePacketBuffer {
     }
 
     /// Step the buffer position forward with a specific number steps
-    fn step(&mut self, steps: usize) -> Result<()> {
+    pub(crate) fn step(&mut self, steps: usize) -> Result<()> {
         self.pos += steps;
         Ok(())
     }
@@ -74,17 +74,17 @@ impl BytePacketBuffer {
     }
 
     /// Read two bytes, stepping two steps forward
-    fn read_u16(&mut self) -> Result<u16> {
+    pub(crate) fn read_u16(&mut self) -> Result<u16> {
         Ok(merge_u8_as_u16(self.read()?, self.read()?))
     }
 
     /// Read four bytes, stepping four steps forward
-    fn read_u32(&mut self) -> Result<u32> {
+    pub(crate) fn read_u32(&mut self) -> Result<u32> {
         Ok(merge_u16_as_u32(self.read_u16()?, self.read_u16()?))
     }
 
     /// Reads a domain name into the outstr buffer, returning the domain name taking labels into consideration.
-    fn read_qname(&mut self, outstr: &mut String) -> Result<()> {
+    pub(crate) fn read_qname(&mut self, outstr: &mut String) -> Result<()> {
         let mut pos = self.pos();
 
         let mut jumped = false;
