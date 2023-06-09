@@ -1,6 +1,7 @@
-use crate::utils::common::Result;
-use crate::utils::packets::byte_packet_buffer::BytePacketBuffer;
-use crate::utils::packets::query_type::QueryType;
+use shared::prelude::*;
+
+use crate::packets::byte_packet_buffer::BytePacketBuffer;
+use crate::packets::query_type::QueryType;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DnsQuestion {

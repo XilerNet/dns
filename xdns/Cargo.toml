@@ -1,0 +1,7 @@
+[package]
+name = "xdns"
+version = "0.0.1"
+description = "🌐🔗 A decentralized DNS server built on Bitcoin ordinals, adhering to the Xiler specification."
+
+[dependencies]
+dns_utils = { path = "../crates/dns-utils" }

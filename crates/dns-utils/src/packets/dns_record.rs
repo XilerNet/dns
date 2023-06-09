@@ -1,8 +1,27 @@
 use std::net::Ipv4Addr;
 
-use crate::utils::common::Result;
-use crate::utils::packets::byte_packet_buffer::BytePacketBuffer;
-use crate::utils::packets::query_type::QueryType;
+use shared::prelude::*;
+
+use crate::packets::byte_packet_buffer::BytePacketBuffer;
+use crate::packets::query_type::QueryType;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[allow(dead_code)]
+pub enum DnsRecord {
+    // 0
+    UNKNOWN {
+        domain: String,
+        qtype: u16,
+        data_len: u16,
+        ttl: u32,
+    },
+    // 1
+    A {
+        domain: String,
+        addr: Ipv4Addr,
+        ttl: u32,
+    },
+}
 
 impl DnsRecord {
     pub fn read(buffer: &mut BytePacketBuffer) -> Result<DnsRecord> {

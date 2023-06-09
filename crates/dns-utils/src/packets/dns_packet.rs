@@ -1,8 +1,10 @@
-use crate::utils::common::Result;
-use crate::utils::packets::byte_packet_buffer::BytePacketBuffer;
-use crate::utils::packets::dns_header::DnsHeader;
-use crate::utils::packets::dns_question::DnsQuestion;
-use crate::utils::packets::query_type::QueryType;
+use shared::prelude::*;
+
+use crate::packets::byte_packet_buffer::BytePacketBuffer;
+use crate::packets::dns_header::DnsHeader;
+use crate::packets::dns_question::DnsQuestion;
+use crate::packets::dns_record::DnsRecord;
+use crate::packets::query_type::QueryType;
 
 #[derive(Clone, Debug)]
 pub struct DnsPacket {
@@ -38,10 +40,12 @@ impl DnsPacket {
             let rec = DnsRecord::read(buffer)?;
             result.answers.push(rec);
         }
+
         for _ in 0..result.header.authoritative_entries {
             let rec = DnsRecord::read(buffer)?;
             result.authorities.push(rec);
         }
+
         for _ in 0..result.header.resource_entries {
             let rec = DnsRecord::read(buffer)?;
             result.resources.push(rec);

@@ -1,9 +1,7 @@
-[package]
-name = "xiler-dns"
-version = "0.0.1"
+[workspace]
+members = ["crates/*", "xdns"]
+
+[workspace.package]
 edition = "2021"
-description = "🌐🔗 A decentralized DNS server built on Bitcoin ordinals, adhering to the Xiler specification."
 license = "GPL-3.0"
 authors = ["Arthurdw <dev@arthurdw.com>"]
-
-[dependencies]

@@ -1,9 +1,13 @@
+use std::ops::{BitOr, Shl};
+
 pub const JUMP_FLAG: u8 = 0xC0;
 
 /// Merge two numbers with offset, this way you can merge two u8's that are behind
 /// each other into their corresponding u16 value.
-fn merge_two_numbers_with_offset_as<T, R>(n1: T, n2: T, offset: usize) -> R {
-    (n1 << offset) | n2
+fn merge_two_numbers_with_offset_as<T, R>(n1: T, n2: T, offset: usize) -> R
+    where T: Into<R>,
+          R: BitOr<Output=R> + Shl<usize, Output=R> {
+    (n1.into() << offset) | n2.into()
 }
 
 /// Merge two succeeding u8's into a u16.
@@ -17,5 +21,5 @@ pub fn merge_u16_as_u32(n1: u16, n2: u16) -> u32 {
 }
 
 pub fn has_flag(value: u8, flag: u8) -> bool {
-    value & flag == flag
+    (value & flag) == flag
 }
