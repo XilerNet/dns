@@ -1,8 +1,9 @@
 [package]
-name = "dns"
-version = "0.1.0"
+name = "xiler-dns"
+version = "0.0.1"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "🌐🔗 A decentralized DNS server built on Bitcoin ordinals, adhering to the Xiler specification."
+license = "GPL-3.0"
+authors = ["Arthurdw <dev@arthurdw.com>"]
 
 [dependencies]
