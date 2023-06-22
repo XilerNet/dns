@@ -1,6 +1,6 @@
 use shared::prelude::*;
 
-use crate::bitwise::{has_flag, JUMP_FLAG, merge_u16_as_u32, merge_u8_as_u16};
+use crate::bitwise::{has_flag, JUMP_FLAG, merge_u16_as_u32, merge_u8_as_u16, split_32_as_u8s, split_u16_as_u8s};
 
 const BUFFER_MAX_SIZE: usize = 512;
 const MAX_JUMP_COUNT: usize = 5;
@@ -132,6 +132,55 @@ impl BytePacketBuffer {
             self.seek(pos)?;
         }
 
+        Ok(())
+    }
+
+    // Write a single byte to the buffer
+    fn write(&mut self, val: u8) -> Result<()> {
+        if self.pos >= 512 {
+            return Err("End of buffer reached".into());
+        }
+
+        self.buf[self.pos] = val;
+        self.pos += 1;
+
+        Ok(())
+    }
+
+    // Write a single byte to the buffer
+    fn write_u8(&mut self, val: u8) -> Result<()> {
+        self.write(val)
+    }
+
+    // Write a slice of bytes to the buffer
+    fn write_u8_slice(&mut self, val: &[u8]) -> Result<()> {
+        val.into_iter().try_for_each(|byte| self.write_u8(*byte))
+    }
+
+    // Write a u16 to the buffer (converts to two u8s)
+    fn write_u16(&mut self, val: u16) -> Result<()> {
+        self.write_u8_slice(&split_u16_as_u8s(val))
+    }
+
+    // Write a u32 to the buffer (converts to four u8s)
+    fn write_u32(&mut self, val: u32) -> Result<()> {
+        self.write_u8_slice(&split_32_as_u8s(val))
+    }
+
+    // Write a domain name to the buffer
+    fn write_qname(&mut self, qname: &str) -> Result<()> {
+        for label in qname.split('.') {
+            let len = label.len();
+
+            if len > 0x3F {
+                return Err("Single label exceeds maximum length of 63 characters".into());
+            }
+
+            self.write_u8(len as u8)?;
+            self.write_u8_slice(label.as_bytes())?;
+        }
+
+        self.write_u8(0x00)?;
         Ok(())
     }
 }
