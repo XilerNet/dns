@@ -10,5 +10,6 @@ pub mod prelude {
         result_code::ResultCode,
         query_type::QueryType,
         dns_record::DnsRecord,
+        dns_question::DnsQuestion,
     };
 }

@@ -1,4 +1,4 @@
-use std::ops::{BitAnd, BitOr, Shl, Shr};
+use std::ops::{BitOr, Shl};
 
 pub const JUMP_FLAG: u8 = 0xC0;
 
