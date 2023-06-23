@@ -148,7 +148,7 @@ impl BytePacketBuffer {
     }
 
     // Write a single byte to the buffer
-    fn write_u8(&mut self, val: u8) -> Result<()> {
+    pub fn write_u8(&mut self, val: u8) -> Result<()> {
         self.write(val)
     }
 
@@ -158,17 +158,17 @@ impl BytePacketBuffer {
     }
 
     // Write a u16 to the buffer (converts to two u8s)
-    fn write_u16(&mut self, val: u16) -> Result<()> {
+    pub fn write_u16(&mut self, val: u16) -> Result<()> {
         self.write_u8_slice(&split_u16_as_u8s(val))
     }
 
     // Write a u32 to the buffer (converts to four u8s)
-    fn write_u32(&mut self, val: u32) -> Result<()> {
+    pub fn write_u32(&mut self, val: u32) -> Result<()> {
         self.write_u8_slice(&split_32_as_u8s(val))
     }
 
     // Write a domain name to the buffer
-    fn write_qname(&mut self, qname: &str) -> Result<()> {
+    pub fn write_qname(&mut self, qname: &str) -> Result<()> {
         for label in qname.split('.') {
             let len = label.len();
 
