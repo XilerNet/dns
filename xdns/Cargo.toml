@@ -5,3 +5,4 @@ description = "🌐🔗 A decentralized DNS server built on Bitcoin ordinals, ad
 
 [dependencies]
 dns_utils = { path = "../crates/dns-utils" }
+shared = { path = "../crates/shared" }
