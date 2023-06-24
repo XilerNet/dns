@@ -219,4 +219,24 @@ impl DnsRecord {
 
         Ok(buffer.pos() - start_pos)
     }
+
+    pub fn type_of(&self) -> QueryType {
+        match *self {
+            DnsRecord::A { .. } => QueryType::A,
+            DnsRecord::AAAA { .. } => QueryType::AAAA,
+            DnsRecord::NS { .. } => QueryType::NS,
+            DnsRecord::CNAME { .. } => QueryType::CNAME,
+            DnsRecord::MX { .. } => QueryType::MX,
+            DnsRecord::UNKNOWN { qtype, .. } => QueryType::UNKNOWN(qtype),
+        }
+    }
+
+    pub fn get_host(&self) -> Option<&str> {
+        match *self {
+            DnsRecord::NS { ref host, .. } => Some(host),
+            DnsRecord::CNAME { ref host, .. } => Some(host),
+            DnsRecord::MX { ref host, .. } => Some(host),
+            _ => None,
+        }
+    }
 }

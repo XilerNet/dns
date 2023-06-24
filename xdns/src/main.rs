@@ -2,52 +2,93 @@ extern crate dns_utils;
 extern crate shared;
 
 use std::net::{Ipv4Addr, UdpSocket};
+
 use dns_utils::prelude::*;
 use shared::prelude::*;
 
+const SERVER: (&str, u16) = ("8.8.8.8", 53);
+const PORT: u16 = 53;
 
-fn lookup(qname: &str, qtype: QueryType) -> Result<DnsPacket> {
+fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<DnsPacket> {
     println!("Looking up {:?} {:?}", qname, qtype);
-    // Forward queries to Google's public DNS
-    let server = ("8.8.8.8", 53);
+    println!("Packet: {:?}", packet);
 
-    let socket = UdpSocket::bind(("0.0.0.0", 43210))?;
+    let mut packet = match packet {
+        Some(packet) => packet,
+        None => {
+            let mut packet = DnsPacket::new();
 
-    let mut packet = DnsPacket::new();
+            packet.header.id = 6666;
+            packet.header.questions = 1;
+            packet.header.recursion_desired = true;
+            packet
+                .questions
+                .push(DnsQuestion::new(qname.to_string(), qtype));
 
-    packet.header.id = 6666;
-    packet.header.questions = 1;
-    packet.header.recursion_desired = true;
-    packet
-        .questions
-        .push(DnsQuestion::new(qname.to_string(), qtype));
-
-    let mut req_buffer = BytePacketBuffer::new();
-    packet.write(&mut req_buffer)?;
+            packet
+        }
+    };
 
     if qname.ends_with(".o") {
-        // TODO: if the last answer is not an ipv4 or ipv6 address then do recursion
-
-        Ok(DnsPacket {
+        // TODO: Get the packet from the db
+        let mut packet = DnsPacket {
             header: packet.header,
             questions: packet.questions,
             answers: vec![
-                DnsRecord::A {
-                    domain: qname.to_string(),
-                    addr: Ipv4Addr::new(127, 0, 0, 1),
-                    ttl: 64,
+                if qname == "xiler.o" {
+                    DnsRecord::CNAME {
+                        domain: qname.to_string(),
+                        host: "xiler.net".to_string(),
+                        ttl: 64,
+                    }
+                } else {
+                    DnsRecord::A {
+                        domain: qname.to_string(),
+                        addr: Ipv4Addr::new(127, 0, 0, 1),
+                        ttl: 64,
+                    }
                 }
             ],
             authorities: vec![],
             resources: vec![],
-        })
+        };
+
+        if let Some(record) = packet.answers.last() {
+            return if record.type_of() == qtype {
+                Ok(packet)
+            } else if let Some(host) = record.get_host() {
+                // TODO: Prevent clone usage here
+                // TODO: Find a way that the question is still .o in the final response
+                packet.questions = vec![DnsQuestion::new(host.to_string(), qtype)];
+                lookup(host, qtype, Some(packet.clone()))
+            } else {
+                Err("No host found".into())
+            };
+        }
+
+
+        Ok(packet)
     } else {
-        socket.send_to(&req_buffer.buf[0..req_buffer.pos()], server)?;
+        let mut req_buffer = BytePacketBuffer::new();
+        packet.write(&mut req_buffer)?;
+
+        let socket = UdpSocket::bind(("0.0.0.0", 43210))?;
+        socket.send_to(&req_buffer.buf[0..req_buffer.pos()], SERVER)?;
 
         let mut res_buffer = BytePacketBuffer::new();
         socket.recv_from(&mut res_buffer.buf)?;
 
-        DnsPacket::from_buffer(&mut res_buffer)
+        let res_packet = DnsPacket::from_buffer(&mut res_buffer);
+
+        match res_packet {
+            Ok(res_packet) => {
+                for answer in res_packet.answers {
+                    packet.answers.push(answer);
+                }
+                Ok(packet)
+            }
+            e @ Err(_) => e
+        }
     }
 }
 
@@ -79,11 +120,11 @@ fn handle_query(socket: &UdpSocket) -> Result<()> {
         println!("Received query: {:?}", question);
 
         // Since all is set up and as expected, the query can be forwarded to the
-        // target server. There's always the possibility that the query will
+        // target SERVER. There's always the possibility that the query will
         // fail, in which case the `SERVFAIL` response code is set to indicate
         // as much to the client. If rather everything goes as planned, the
         // question and response records as copied into our response packet.
-        if let Ok(result) = lookup(&question.name, question.qtype) {
+        if let Ok(result) = lookup(&question.name, question.qtype, None) {
             packet.questions.push(question);
             packet.header.rescode = result.header.rescode;
 
@@ -122,12 +163,12 @@ fn handle_query(socket: &UdpSocket) -> Result<()> {
 }
 
 fn main() -> Result<()> {
-    let socket = UdpSocket::bind(("127.0.0.1", 53))?;
-    println!("DNS proxy listening on port 53");
+    let socket = UdpSocket::bind(("127.0.0.1", PORT))?;
+    println!("DNS proxy listening on port {}", PORT);
 
     loop {
         match handle_query(&socket) {
-            Ok(_) => {},
+            Ok(_) => {}
             Err(e) => eprintln!("An error occurred: {}", e),
         }
     }
