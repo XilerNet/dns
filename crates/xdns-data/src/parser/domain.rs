@@ -122,13 +122,13 @@ impl Domain {
             return Domain::is_valid_edge_character(name.chars().next().unwrap());
         }
 
-        // Make sure the first and last characters are valid edge characters.
-        if !Domain::is_valid_edge_character(name.chars().next().unwrap()) || !Domain::is_valid_edge_character(name.chars().last().unwrap()) {
-            return false;
-        }
+        let first_char = name.chars().next().unwrap();
+        let last_char = name.chars().last().unwrap();
+        let name_without_edge_chars = &name[1..name.len() - 1];
 
-        // Check if the rest of the characters are valid.
-        name.chars().skip(1).take(name.len() - 2).all(Domain::is_valid_character)
+        Domain::is_valid_edge_character(first_char) &&
+            Domain::is_valid_edge_character(last_char) &&
+            name_without_edge_chars.chars().all(Domain::is_valid_character)
     }
 
     /// Parses a domain record from a string.
