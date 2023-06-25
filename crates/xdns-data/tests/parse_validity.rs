@@ -11,12 +11,7 @@ fn valid_validity() {
     let validity = validity.unwrap();
     assert_eq!(validity.domain, "example.o");
     assert_eq!(validity.algorithm, Algorithm::Ed25519);
-    assert_eq!(
-        validity.key,
-        "naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo"
-            .as_bytes()
-            .to_vec()
-    );
+    assert_eq!(validity.key, b"naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo");
 }
 
 #[test]
@@ -46,6 +41,14 @@ fn invalid_missing_key() {
 #[test]
 fn invalid_key() {
     let input = "DOMAIN-VALIDITY example.o ed25519 invalid key (mustn't contain spaces)";
+    let validity = Validity::parse(input);
+
+    assert!(validity.is_err());
+}
+
+#[test]
+fn parse_invalid_input() {
+    let input = "Some inscription content here which is not a domain validity record!";
     let validity = Validity::parse(input);
 
     assert!(validity.is_err());

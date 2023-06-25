@@ -304,3 +304,11 @@ fn invalid_subdomain_adjacent_hypen_to_dot() {
 
     assert!(!valid);
 }
+
+#[test]
+fn parse_invalid_input() {
+    let input = "Some inscription content here which is not a dns record!";
+    let parsed = SubDomain::parse(input);
+
+    assert!(parsed.is_err());
+}
