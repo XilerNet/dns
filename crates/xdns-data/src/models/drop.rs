@@ -1,4 +1,4 @@
 #[derive(Debug)]
-pub struct Drop {
+pub struct DomainDrop {
     pub inscription: String,
 }

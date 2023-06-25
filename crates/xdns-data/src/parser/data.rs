@@ -1,4 +1,4 @@
-use shared::common::Error;
+use shared::common::Result;
 use crate::models::data::Data;
 use crate::prelude::{Domain, Parser};
 
@@ -20,7 +20,7 @@ impl Parser for Data {
     /// # Returns
     ///
     /// The parsed data.
-    fn parse(input: &str) -> Result<Self, Error> {
+    fn parse(input: &str) -> Result<Self > {
         let mut parts = input.split_whitespace();
 
         if parts.next() != Some("DOMAIN-DATA") {
