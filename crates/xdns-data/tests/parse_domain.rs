@@ -204,3 +204,83 @@ pub fn is_domain_name_invalid_missing_tld() {
 
     assert!(!is_valid);
 }
+
+#[test]
+pub fn is_valid_character_normal() {
+    let character = 'a';
+    let is_valid = Domain::is_valid_character(character);
+
+    assert!(is_valid);
+}
+
+#[test]
+pub fn is_valid_character_numeric() {
+    let character = '1';
+    let is_valid = Domain::is_valid_character(character);
+
+    assert!(is_valid);
+}
+
+#[test]
+pub fn is_valid_character_hyphen() {
+    let character = '-';
+    let is_valid = Domain::is_valid_character(character);
+
+    assert!(is_valid);
+}
+
+#[test]
+pub fn is_invalid_character() {
+    let character = '*';
+    let is_valid = Domain::is_valid_character(character);
+
+    assert!(!is_valid);
+}
+
+#[test]
+pub fn is_invalid_character_uppercase() {
+    let character = 'A';
+    let is_valid = Domain::is_valid_character(character);
+
+    assert!(!is_valid);
+}
+
+#[test]
+pub fn is_valid_edge_character_normal() {
+    let character = 'a' as u8;
+    let is_valid = Domain::is_valid_edge_character(character);
+
+    assert!(is_valid);
+}
+
+#[test]
+pub fn is_valid_edge_character_numeric() {
+    let character = '1' as u8;
+    let is_valid = Domain::is_valid_edge_character(character);
+
+    assert!(is_valid);
+}
+
+#[test]
+pub fn is_invalid_edge_character_hyphen() {
+    let character = '-' as u8;
+    let is_valid = Domain::is_valid_edge_character(character);
+
+    assert!(!is_valid);
+}
+
+#[test]
+pub fn is_invalid_edge_character() {
+    let character = '*' as u8;
+    let is_valid = Domain::is_valid_edge_character(character);
+
+    assert!(!is_valid);
+}
+
+#[test]
+pub fn is_invalid_edge_character_uppercase() {
+    let character = 'A' as u8;
+    let is_valid = Domain::is_valid_edge_character(character);
+
+    assert!(!is_valid);
+}
