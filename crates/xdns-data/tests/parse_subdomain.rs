@@ -73,7 +73,7 @@ fn parse_subdomain_invalid_missing_suffix_dot() {
 }
 
 #[test]
-fn parse_subdomain_invalid_invalid_suffix_hyphen() {
+fn parse_subdomain_invalid_suffix_hyphen() {
     let input = "DNS invalid.o example-. CNAME IN 30 example.com";
     let parsed = SubDomain::parse(input);
 
@@ -81,7 +81,7 @@ fn parse_subdomain_invalid_invalid_suffix_hyphen() {
 }
 
 #[test]
-fn parse_subdomain_invalid_invalid_prefix_hyphen() {
+fn parse_subdomain_invalid_prefix_hyphen() {
     let input = "DNS invalid.o -example. CNAME IN 30 example.com";
     let parsed = SubDomain::parse(input);
 
@@ -89,7 +89,7 @@ fn parse_subdomain_invalid_invalid_prefix_hyphen() {
 }
 
 #[test]
-fn parse_subdomain_invalid_invalid_suffix_double_dot() {
+fn parse_subdomain_invalid_suffix_double_dot() {
     let input = "DNS invalid.o example.. CNAME IN 30 example.com";
     let parsed = SubDomain::parse(input);
 
@@ -97,7 +97,7 @@ fn parse_subdomain_invalid_invalid_suffix_double_dot() {
 }
 
 #[test]
-fn parse_subdomain_invalid_invalid_double_dot() {
+fn parse_subdomain_invalid_double_dot() {
     let input = "DNS invalid.o my..example. CNAME IN 30 example.com";
     let parsed = SubDomain::parse(input);
 
@@ -105,7 +105,7 @@ fn parse_subdomain_invalid_invalid_double_dot() {
 }
 
 #[test]
-fn parse_subdomain_invalid_invalid_prefix_dot() {
+fn parse_subdomain_invalid_prefix_dot() {
     let input = "DNS invalid.o .example. CNAME IN 30 example.com";
     let parsed = SubDomain::parse(input);
 
@@ -113,7 +113,7 @@ fn parse_subdomain_invalid_invalid_prefix_dot() {
 }
 
 #[test]
-fn parse_subdomain_invalid_invalid_uppercase() {
+fn parse_subdomain_invalid_uppercase() {
     let input = "DNS invalid.o EXAMPLE. CNAME IN 30 example.com";
     let parsed = SubDomain::parse(input);
 
@@ -121,7 +121,7 @@ fn parse_subdomain_invalid_invalid_uppercase() {
 }
 
 #[test]
-fn parse_subdomain_invalid_invalid_ttl() {
+fn parse_subdomain_invalid_ttl() {
     let input = "DNS invalid.o example. A IN 99999999999 127.0.0.1";
     let parsed = SubDomain::parse(input);
 
@@ -129,7 +129,7 @@ fn parse_subdomain_invalid_invalid_ttl() {
 }
 
 #[test]
-fn parse_subdomain_invalid_invalid_ttl_negative() {
+fn parse_subdomain_invalid_ttl_negative() {
     let input = "DNS invalid.o example. A IN -1 127.0.0.1";
     let parsed = SubDomain::parse(input);
 
@@ -218,6 +218,14 @@ fn valid_subdomain_hyphen() {
 
 #[test]
 fn valid_subdomain_wildcard() {
+    let subdomain = "*.";
+    let valid = SubDomain::is_valid_subdomain(subdomain);
+
+    assert!(valid);
+}
+
+#[test]
+fn valid_subdomain_depth_wildcard() {
     let subdomain = "*.example.";
     let valid = SubDomain::is_valid_subdomain(subdomain);
 
