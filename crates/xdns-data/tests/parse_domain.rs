@@ -247,7 +247,7 @@ pub fn is_invalid_character_uppercase() {
 
 #[test]
 pub fn is_valid_edge_character_normal() {
-    let character = 'a' as u8;
+    let character = 'a';
     let is_valid = Domain::is_valid_edge_character(character);
 
     assert!(is_valid);
@@ -255,7 +255,7 @@ pub fn is_valid_edge_character_normal() {
 
 #[test]
 pub fn is_valid_edge_character_numeric() {
-    let character = '1' as u8;
+    let character = '1';
     let is_valid = Domain::is_valid_edge_character(character);
 
     assert!(is_valid);
@@ -263,7 +263,7 @@ pub fn is_valid_edge_character_numeric() {
 
 #[test]
 pub fn is_invalid_edge_character_hyphen() {
-    let character = '-' as u8;
+    let character = '-';
     let is_valid = Domain::is_valid_edge_character(character);
 
     assert!(!is_valid);
@@ -271,7 +271,7 @@ pub fn is_invalid_edge_character_hyphen() {
 
 #[test]
 pub fn is_invalid_edge_character() {
-    let character = '*' as u8;
+    let character = '*';
     let is_valid = Domain::is_valid_edge_character(character);
 
     assert!(!is_valid);
@@ -279,8 +279,50 @@ pub fn is_invalid_edge_character() {
 
 #[test]
 pub fn is_invalid_edge_character_uppercase() {
-    let character = 'A' as u8;
+    let character = 'A';
     let is_valid = Domain::is_valid_edge_character(character);
 
     assert!(!is_valid);
+}
+
+#[test]
+pub fn get_tld_single_char() {
+    let domain = "example.o";
+    let tld = Domain::get_tld(domain);
+
+    assert!(tld.is_some());
+    assert_eq!(tld.unwrap(), "o");
+}
+
+#[test]
+pub fn get_tld_multi_char() {
+    let domain = "example.com";
+    let tld = Domain::get_tld(domain);
+
+    assert!(tld.is_some());
+    assert_eq!(tld.unwrap(), "com");
+}
+
+#[test]
+pub fn get_tld_none() {
+    let domain = "example";
+    let tld = Domain::get_tld(domain);
+
+    assert!(tld.is_none());
+}
+
+#[test]
+pub fn has_valid_o_tld() {
+    let domain = "example.o";
+    let has_o_tld = Domain::is_tld_valid(domain);
+
+    assert!(has_o_tld);
+}
+
+#[test]
+pub fn has_invalid_o_tld() {
+    let domain = "example.com";
+    let has_o_tld = Domain::is_tld_valid(domain);
+
+    assert!(!has_o_tld);
 }

@@ -1,5 +1,8 @@
-use crate::models::domain::Domain;
+use std::ops::RangeInclusive;
+
 use shared::common::Result;
+
+use crate::models::domain::Domain;
 
 const ASCII_LOWERCASE_START: u8 = 97;
 const ASCII_LOWERCASE_END: u8 = 122;
@@ -9,9 +12,8 @@ const ASCII_NUMBERS_END: u8 = 57;
 
 const ASCII_HYPHEN: u8 = 45;
 
-
-static ASCII_LOWERCASE_RANGE: std::ops::RangeInclusive<u8> = ASCII_LOWERCASE_START..=ASCII_LOWERCASE_END;
-static ASCII_NUMBERS_RANGE: std::ops::RangeInclusive<u8> = ASCII_NUMBERS_START..=ASCII_NUMBERS_END;
+static ASCII_LOWERCASE_RANGE: RangeInclusive<u8> = ASCII_LOWERCASE_START..=ASCII_LOWERCASE_END;
+static ASCII_NUMBERS_RANGE: RangeInclusive<u8> = ASCII_NUMBERS_START..=ASCII_NUMBERS_END;
 
 impl Domain {
     /// Checks if a character is valid for the first or last character of a domain.
@@ -28,8 +30,8 @@ impl Domain {
     /// # Returns
     ///
     /// Whether the character is valid.
-    pub fn is_valid_edge_character(c: u8) -> bool {
-        ASCII_LOWERCASE_RANGE.contains(&c) || ASCII_NUMBERS_RANGE.contains(&c)
+    pub fn is_valid_edge_character(c: char) -> bool {
+        c.is_ascii() && (ASCII_LOWERCASE_RANGE.contains(&(c as u8)) || ASCII_NUMBERS_RANGE.contains(&(c as u8)))
     }
 
     /// Checks if a character is valid for a domain.
@@ -47,7 +49,43 @@ impl Domain {
     ///
     /// Whether the character is valid.
     pub fn is_valid_character(c: char) -> bool {
-        c.is_ascii() && (Domain::is_valid_edge_character(c as u8) || c as u8 == ASCII_HYPHEN)
+        Domain::is_valid_edge_character(c) || (c.is_ascii() && c as u8 == ASCII_HYPHEN)
+    }
+
+    /// Checks if a top-level domain is present and gets it.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The domain name to check.
+    ///
+    /// # Returns
+    ///
+    /// The top-level domain if present.
+    pub fn get_tld(name: &str) -> Option<&str> {
+        for (i, c) in name.chars().rev().enumerate() {
+            if c == '.' {
+                return Some(&name[name.len() - i..]);
+            }
+        }
+
+        None
+    }
+
+    /// Checks if a top-level domain is valid.
+    ///
+    /// # Restrictions
+    ///
+    /// * The tld must be of the `o` domain space.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The top-level domain to check.
+    ///
+    /// # Returns
+    ///
+    /// Whether the top-level domain is valid.
+    pub fn is_tld_valid(name: &str) -> bool {
+        Domain::get_tld(name).map_or(false, |tld| tld == "o")
     }
 
     /// Checks if a domain name is valid.
@@ -67,7 +105,29 @@ impl Domain {
     ///
     /// Whether the domain name is valid.
     pub fn is_valid_domain_name(name: &str) -> bool {
-        false
+        if !Domain::is_tld_valid(name) {
+            return false;
+        }
+
+        // Remove the .o TLD.
+        let name = &name[..name.len() - 2];
+
+        if name.len() < 1 || name.len() > 254 {
+            return false;
+        }
+
+        // If we only need to check one character, we can skip the check of the rest.
+        if name.len() == 1 {
+            return Domain::is_valid_edge_character(name.chars().next().unwrap());
+        }
+
+        // Make sure the first and last characters are valid edge characters.
+        if !Domain::is_valid_edge_character(name.chars().next().unwrap()) || !Domain::is_valid_edge_character(name.chars().last().unwrap()) {
+            return false;
+        }
+
+        // Check if the rest of the characters are valid.
+        name.chars().skip(1).take(name.len() - 2).all(Domain::is_valid_character)
     }
 
     /// Parses a domain record from a string.
