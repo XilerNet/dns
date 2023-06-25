@@ -1,3 +1,4 @@
+use std::mem;
 use shared::prelude::*;
 
 use crate::packets::byte_packet_buffer::BytePacketBuffer;
@@ -10,6 +11,7 @@ use crate::packets::query_type::QueryType;
 pub struct DnsPacket {
     pub header: DnsHeader,
     pub questions: Vec<DnsQuestion>,
+    pub original_questions: Option<Vec<DnsQuestion>>,
     pub answers: Vec<DnsRecord>,
     pub authorities: Vec<DnsRecord>,
     pub resources: Vec<DnsRecord>,
@@ -20,6 +22,7 @@ impl DnsPacket {
         DnsPacket {
             header: DnsHeader::new(),
             questions: Vec::new(),
+            original_questions: None,
             answers: Vec::new(),
             authorities: Vec::new(),
             resources: Vec::new(),
@@ -76,5 +79,13 @@ impl DnsPacket {
         }
 
         Ok(())
+    }
+
+    pub fn make_returnable(mut self) -> DnsPacket {
+        if self.original_questions.is_some() {
+            self.questions = mem::replace(&mut self.original_questions, None).unwrap();
+        }
+
+        self
     }
 }

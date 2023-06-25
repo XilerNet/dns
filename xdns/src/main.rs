@@ -1,7 +1,7 @@
 extern crate dns_utils;
 extern crate shared;
 
-use std::net::{Ipv4Addr, UdpSocket};
+use std::net::UdpSocket;
 
 use dns_utils::prelude::*;
 use shared::prelude::*;
@@ -31,41 +31,37 @@ fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<Dn
 
     if qname.ends_with(".o") {
         // TODO: Get the packet from the db
-        let mut packet = DnsPacket {
-            header: packet.header,
-            questions: packet.questions,
-            answers: vec![
-                if qname == "xiler.o" {
+        if qname == "xiler.o" {
+            let mut packet = DnsPacket {
+                header: packet.header,
+                questions: packet.questions,
+                original_questions: None,
+                answers: vec![
                     DnsRecord::CNAME {
                         domain: qname.to_string(),
                         host: "xiler.net".to_string(),
                         ttl: 64,
                     }
-                } else {
-                    DnsRecord::A {
-                        domain: qname.to_string(),
-                        addr: Ipv4Addr::new(127, 0, 0, 1),
-                        ttl: 64,
-                    }
-                }
-            ],
-            authorities: vec![],
-            resources: vec![],
-        };
-
-        if let Some(record) = packet.answers.last() {
-            return if record.type_of() == qtype {
-                Ok(packet)
-            } else if let Some(host) = record.get_host() {
-                // TODO: Prevent clone usage here
-                // TODO: Find a way that the question is still .o in the final response
-                packet.questions = vec![DnsQuestion::new(host.to_string(), qtype)];
-                lookup(host, qtype, Some(packet.clone()))
-            } else {
-                Err("No host found".into())
+                ],
+                authorities: vec![],
+                resources: vec![],
             };
-        }
 
+            if let Some(record) = packet.answers.last() {
+                return if record.type_of() == qtype {
+                    Ok(packet.make_returnable())
+                } else if let Some(host) = record.get_host() {
+                    // TODO: Prevent clone usage here
+                    packet.original_questions = Some(packet.questions);
+                    packet.questions = vec![DnsQuestion::new(host.to_string(), qtype)];
+                    lookup(host, qtype, Some(packet.clone()))
+                } else {
+                    Ok(packet.make_returnable())
+                };
+            }
+
+            return Ok(packet.make_returnable());
+        }
 
         Ok(packet)
     } else {
@@ -85,7 +81,7 @@ fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<Dn
                 for answer in res_packet.answers {
                     packet.answers.push(answer);
                 }
-                Ok(packet)
+                Ok(packet.make_returnable())
             }
             e @ Err(_) => e
         }
