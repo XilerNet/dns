@@ -21,5 +21,4 @@ pub struct SubDomain {
     pub class: Class,
     pub ttl: u32,
     pub rdata: Vec<u8>,
-    pub id: String,
 }
