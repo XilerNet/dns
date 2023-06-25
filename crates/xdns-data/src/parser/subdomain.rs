@@ -67,6 +67,7 @@ impl SubDomain {
     /// # Restrictions
     ///
     /// * The subdomain must be valid. (See [`is_valid_subdomain`](#method.is_valid_subdomain).)
+    /// * The domain must be valid. (See [`Domain::is_valid_domain_name`](../prelude/struct.Domain.html#method.is_valid_domain_name).)
     /// * The subdomain record must be in the format *(case sensitive)*: `DNS <domain> <subdomain> <type> <class> <ttl> <rdata>`
     ///
     /// # Arguments
