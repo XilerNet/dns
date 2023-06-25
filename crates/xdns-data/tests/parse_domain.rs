@@ -2,7 +2,7 @@ use shared::time::system_time_from_epoch_seconds;
 use xdns_data::models::domain::Domain;
 
 #[test]
-pub fn parse_domain_normal() {
+fn parse_domain_normal() {
     let domain = "DOMAIN example.o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -15,7 +15,7 @@ pub fn parse_domain_normal() {
 }
 
 #[test]
-pub fn parse_domain_one_character() {
+fn parse_domain_one_character() {
     let domain = "DOMAIN e.o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -28,7 +28,7 @@ pub fn parse_domain_one_character() {
 }
 
 #[test]
-pub fn parse_domain_hyphen() {
+fn parse_domain_hyphen() {
     let domain = "DOMAIN my-example.o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -41,7 +41,7 @@ pub fn parse_domain_hyphen() {
 }
 
 #[test]
-pub fn parse_domain_numeric() {
+fn parse_domain_numeric() {
     let domain = "DOMAIN 54t05h1.o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -54,7 +54,7 @@ pub fn parse_domain_numeric() {
 }
 
 #[test]
-pub fn parse_domain_invalid_empty() {
+fn parse_domain_invalid_empty() {
     let domain = "DOMAIN .o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -62,7 +62,7 @@ pub fn parse_domain_invalid_empty() {
 }
 
 #[test]
-pub fn parse_domain_invalid_too_long() {
+fn parse_domain_invalid_too_long() {
     let domain = "DOMAIN 111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111.o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -70,7 +70,7 @@ pub fn parse_domain_invalid_too_long() {
 }
 
 #[test]
-pub fn parse_domain_invalid_prefix_hyphen() {
+fn parse_domain_invalid_prefix_hyphen() {
     let domain = "DOMAIN -invalid.o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -78,7 +78,7 @@ pub fn parse_domain_invalid_prefix_hyphen() {
 }
 
 #[test]
-pub fn parse_domain_invalid_character() {
+fn parse_domain_invalid_character() {
     let domain = "DOMAIN invalid*.o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -86,7 +86,7 @@ pub fn parse_domain_invalid_character() {
 }
 
 #[test]
-pub fn parse_domain_invalid_single_character() {
+fn parse_domain_invalid_single_character() {
     let domain = "DOMAIN *.o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -94,7 +94,7 @@ pub fn parse_domain_invalid_single_character() {
 }
 
 #[test]
-pub fn parse_domain_invalid_uppercase() {
+fn parse_domain_invalid_uppercase() {
     let domain = "DOMAIN INVALID.o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -102,7 +102,7 @@ pub fn parse_domain_invalid_uppercase() {
 }
 
 #[test]
-pub fn parse_domain_invalid_missing_tld() {
+fn parse_domain_invalid_missing_tld() {
     let domain = "DOMAIN invalid 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -110,7 +110,7 @@ pub fn parse_domain_invalid_missing_tld() {
 }
 
 #[test]
-pub fn parse_domain_invalid_missing_epoch() {
+fn parse_domain_invalid_missing_epoch() {
     let domain = "DOMAIN invalid.o";
     let parsed = Domain::parse(domain);
 
@@ -118,7 +118,7 @@ pub fn parse_domain_invalid_missing_epoch() {
 }
 
 #[test]
-pub fn parse_domain_invalid_keyword() {
+fn parse_domain_invalid_keyword() {
     let domain = "DOMAINS invalid.o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -126,7 +126,7 @@ pub fn parse_domain_invalid_keyword() {
 }
 
 #[test]
-pub fn parse_domain_invalid_keyword_lowercase() {
+fn parse_domain_invalid_keyword_lowercase() {
     let domain = "domain invalid.o 1685954907";
     let parsed = Domain::parse(domain);
 
@@ -134,7 +134,7 @@ pub fn parse_domain_invalid_keyword_lowercase() {
 }
 
 #[test]
-pub fn parse_domain_invalid_data() {
+fn parse_domain_invalid_data() {
     let domain = "Some inscription content here which is not a domain record!";
     let parsed = Domain::parse(domain);
 
@@ -142,7 +142,7 @@ pub fn parse_domain_invalid_data() {
 }
 
 #[test]
-pub fn is_domain_name_valid_normal() {
+fn is_domain_name_valid_normal() {
     let domain = "example.o";
     let is_valid = Domain::is_valid_domain_name(domain);
 
@@ -150,7 +150,7 @@ pub fn is_domain_name_valid_normal() {
 }
 
 #[test]
-pub fn is_domain_name_valid_one_character() {
+fn is_domain_name_valid_one_character() {
     let domain = "e.o";
     let is_valid = Domain::is_valid_domain_name(domain);
 
@@ -158,7 +158,7 @@ pub fn is_domain_name_valid_one_character() {
 }
 
 #[test]
-pub fn is_domain_name_valid_hyphen() {
+fn is_domain_name_valid_hyphen() {
     let domain = "my-example.o";
     let is_valid = Domain::is_valid_domain_name(domain);
 
@@ -166,7 +166,7 @@ pub fn is_domain_name_valid_hyphen() {
 }
 
 #[test]
-pub fn is_domain_name_valid_numeric() {
+fn is_domain_name_valid_numeric() {
     let domain = "54t05h1.o";
     let is_valid = Domain::is_valid_domain_name(domain);
 
@@ -174,7 +174,7 @@ pub fn is_domain_name_valid_numeric() {
 }
 
 #[test]
-pub fn is_domain_name_invalid_empty() {
+fn is_domain_name_invalid_empty() {
     let domain = ".o";
     let is_valid = Domain::is_valid_domain_name(domain);
 
@@ -182,7 +182,7 @@ pub fn is_domain_name_invalid_empty() {
 }
 
 #[test]
-pub fn is_domain_name_invalid_too_long() {
+fn is_domain_name_invalid_too_long() {
     let domain = "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111.o";
     let is_valid = Domain::is_valid_domain_name(domain);
 
@@ -190,7 +190,7 @@ pub fn is_domain_name_invalid_too_long() {
 }
 
 #[test]
-pub fn is_domain_name_invalid_prefix_hyphen() {
+fn is_domain_name_invalid_prefix_hyphen() {
     let domain = "-invalid.o";
     let is_valid = Domain::is_valid_domain_name(domain);
 
@@ -198,7 +198,7 @@ pub fn is_domain_name_invalid_prefix_hyphen() {
 }
 
 #[test]
-pub fn is_domain_name_invalid_character() {
+fn is_domain_name_invalid_character() {
     let domain = "invalid*.o";
     let is_valid = Domain::is_valid_domain_name(domain);
 
@@ -206,7 +206,7 @@ pub fn is_domain_name_invalid_character() {
 }
 
 #[test]
-pub fn is_domain_name_invalid_single_character() {
+fn is_domain_name_invalid_single_character() {
     let domain = "*.o";
     let is_valid = Domain::is_valid_domain_name(domain);
 
@@ -214,7 +214,7 @@ pub fn is_domain_name_invalid_single_character() {
 }
 
 #[test]
-pub fn is_domain_name_invalid_uppercase() {
+fn is_domain_name_invalid_uppercase() {
     let domain = "INVALID.o";
     let is_valid = Domain::is_valid_domain_name(domain);
 
@@ -222,7 +222,7 @@ pub fn is_domain_name_invalid_uppercase() {
 }
 
 #[test]
-pub fn is_domain_name_invalid_missing_tld() {
+fn is_domain_name_invalid_missing_tld() {
     let domain = "invalid";
     let is_valid = Domain::is_valid_domain_name(domain);
 
@@ -230,7 +230,7 @@ pub fn is_domain_name_invalid_missing_tld() {
 }
 
 #[test]
-pub fn is_valid_character_normal() {
+fn is_valid_character_normal() {
     let character = 'a';
     let is_valid = Domain::is_valid_character(character);
 
@@ -238,7 +238,7 @@ pub fn is_valid_character_normal() {
 }
 
 #[test]
-pub fn is_valid_character_numeric() {
+fn is_valid_character_numeric() {
     let character = '1';
     let is_valid = Domain::is_valid_character(character);
 
@@ -246,7 +246,7 @@ pub fn is_valid_character_numeric() {
 }
 
 #[test]
-pub fn is_valid_character_hyphen() {
+fn is_valid_character_hyphen() {
     let character = '-';
     let is_valid = Domain::is_valid_character(character);
 
@@ -254,7 +254,7 @@ pub fn is_valid_character_hyphen() {
 }
 
 #[test]
-pub fn is_invalid_character() {
+fn is_invalid_character() {
     let character = '*';
     let is_valid = Domain::is_valid_character(character);
 
@@ -262,7 +262,7 @@ pub fn is_invalid_character() {
 }
 
 #[test]
-pub fn is_invalid_character_uppercase() {
+fn is_invalid_character_uppercase() {
     let character = 'A';
     let is_valid = Domain::is_valid_character(character);
 
@@ -270,7 +270,7 @@ pub fn is_invalid_character_uppercase() {
 }
 
 #[test]
-pub fn is_valid_edge_character_normal() {
+fn is_valid_edge_character_normal() {
     let character = 'a';
     let is_valid = Domain::is_valid_edge_character(character);
 
@@ -278,7 +278,7 @@ pub fn is_valid_edge_character_normal() {
 }
 
 #[test]
-pub fn is_valid_edge_character_numeric() {
+fn is_valid_edge_character_numeric() {
     let character = '1';
     let is_valid = Domain::is_valid_edge_character(character);
 
@@ -286,7 +286,7 @@ pub fn is_valid_edge_character_numeric() {
 }
 
 #[test]
-pub fn is_invalid_edge_character_hyphen() {
+fn is_invalid_edge_character_hyphen() {
     let character = '-';
     let is_valid = Domain::is_valid_edge_character(character);
 
@@ -294,7 +294,7 @@ pub fn is_invalid_edge_character_hyphen() {
 }
 
 #[test]
-pub fn is_invalid_edge_character() {
+fn is_invalid_edge_character() {
     let character = '*';
     let is_valid = Domain::is_valid_edge_character(character);
 
@@ -302,7 +302,7 @@ pub fn is_invalid_edge_character() {
 }
 
 #[test]
-pub fn is_invalid_edge_character_uppercase() {
+fn is_invalid_edge_character_uppercase() {
     let character = 'A';
     let is_valid = Domain::is_valid_edge_character(character);
 
@@ -310,7 +310,7 @@ pub fn is_invalid_edge_character_uppercase() {
 }
 
 #[test]
-pub fn get_tld_single_char() {
+fn get_tld_single_char() {
     let domain = "example.o";
     let tld = Domain::get_tld(domain);
 
@@ -319,7 +319,7 @@ pub fn get_tld_single_char() {
 }
 
 #[test]
-pub fn get_tld_multi_char() {
+fn get_tld_multi_char() {
     let domain = "example.com";
     let tld = Domain::get_tld(domain);
 
@@ -328,7 +328,7 @@ pub fn get_tld_multi_char() {
 }
 
 #[test]
-pub fn get_tld_none() {
+fn get_tld_none() {
     let domain = "example";
     let tld = Domain::get_tld(domain);
 
@@ -336,7 +336,7 @@ pub fn get_tld_none() {
 }
 
 #[test]
-pub fn has_valid_o_tld() {
+fn has_valid_o_tld() {
     let domain = "example.o";
     let has_o_tld = Domain::is_tld_valid(domain);
 
@@ -344,7 +344,7 @@ pub fn has_valid_o_tld() {
 }
 
 #[test]
-pub fn has_invalid_o_tld() {
+fn has_invalid_o_tld() {
     let domain = "example.com";
     let has_o_tld = Domain::is_tld_valid(domain);
 
