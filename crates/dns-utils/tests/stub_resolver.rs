@@ -1,11 +1,12 @@
 use std::net::UdpSocket;
 use dns_utils::prelude::*;
 use shared::prelude::*;
+use xdns_data::prelude::Type::A;
 
 #[test]
 fn test_stub_resolver() -> Result<()> {
     let qname = "dns-test-proxy-root.xiler.net";
-    let qtype = QueryType::A;
+    let qtype = QueryType::SUB(A);
 
     let server = ("8.8.8.8", 53);
     let socket = UdpSocket::bind(("0.0.0.0", 43210))?;

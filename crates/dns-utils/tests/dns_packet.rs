@@ -5,6 +5,7 @@ use std::str::FromStr;
 
 use dns_utils::prelude::*;
 use shared::prelude::*;
+use xdns_data::prelude::Type::A;
 
 #[test]
 fn test_create_dns_packet_from_buffer() -> Result<()> {
@@ -36,7 +37,7 @@ fn test_create_dns_packet_from_buffer() -> Result<()> {
     assert_eq!(packet.resources.len(), 0);
 
     assert_eq!(packet.questions[0].name, "xiler.net");
-    assert_eq!(packet.questions[0].qtype, QueryType::A);
+    assert_eq!(packet.questions[0].qtype, QueryType::SUB(A));
 
     if let DnsRecord::A { domain, addr, ttl } = &packet.answers[0] {
         assert_eq!(domain, "xiler.net");
