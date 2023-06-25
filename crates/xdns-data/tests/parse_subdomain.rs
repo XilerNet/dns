@@ -1,4 +1,5 @@
 use xdns_data::models::subdomain::SubDomain;
+use xdns_data::prelude::Parser;
 
 #[test]
 fn parse_subdomain_valid() {

@@ -4,6 +4,7 @@ use shared::common::Result;
 use shared::time::system_time_from_epoch_seconds;
 
 use crate::models::domain::Domain;
+use crate::traits::parser::Parser;
 
 const ASCII_LOWERCASE_START: u8 = 97;
 const ASCII_LOWERCASE_END: u8 = 122;
@@ -134,7 +135,9 @@ impl Domain {
                 .chars()
                 .all(Domain::is_valid_character)
     }
+}
 
+impl Parser for Domain {
     /// Parses a domain record from a string.
     ///
     /// # Restrictions
@@ -149,7 +152,7 @@ impl Domain {
     /// # Returns
     ///
     /// The parsed domain.
-    pub fn parse(input: &str) -> Result<Self> {
+    fn parse(input: &str) -> Result<Self> {
         let mut parts = input.split_whitespace();
 
         if parts.next() != Some("DOMAIN") {

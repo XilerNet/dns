@@ -1,4 +1,5 @@
 use xdns_data::models::validity::{Algorithm, Validity};
+use xdns_data::prelude::Parser;
 
 #[test]
 fn valid_validity() {

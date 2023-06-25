@@ -1,5 +1,6 @@
 use shared::time::system_time_from_epoch_seconds;
 use xdns_data::models::domain::Domain;
+use xdns_data::prelude::Parser;
 
 #[test]
 fn parse_domain_normal() {

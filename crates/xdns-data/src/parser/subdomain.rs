@@ -2,6 +2,7 @@ use shared::common::Result;
 
 use crate::models::subdomain::*;
 use crate::prelude::Domain;
+use crate::traits::parser::Parser;
 
 impl SubDomain {
     /// Checks if a character is valid for a subdomain.
@@ -60,6 +61,9 @@ impl SubDomain {
         input.chars().all(SubDomain::is_valid_character)
     }
 
+}
+
+impl Parser for SubDomain {
     /// Parses a subdomain record from a string.
     ///
     /// > NOTE: This record should not include the blockchain reference nor should the signature be included.
@@ -77,7 +81,7 @@ impl SubDomain {
     /// # Returns
     ///
     /// The parsed subdomain.
-    pub fn parse(input: &str) -> Result<Self> {
+    fn parse(input: &str) -> Result<Self> {
         let mut parts = input.split_whitespace();
 
         if parts.next() != Some("DNS") {

@@ -1,8 +1,9 @@
 use crate::models::validity::Validity;
 use shared::common::Result;
 use crate::prelude::Domain;
+use crate::traits::parser::Parser;
 
-impl Validity {
+impl Parser for Validity {
     /// Parses a validity record from a string.
     ///
     /// # Restrictions
@@ -18,7 +19,7 @@ impl Validity {
     /// # Returns
     ///
     /// The parsed validity record.
-    pub fn parse(input: &str) -> Result<Self> {
+    fn parse(input: &str) -> Result<Self> {
         let mut parts = input.split_whitespace();
 
         if parts.next() != Some("DOMAIN-VALIDITY") {
