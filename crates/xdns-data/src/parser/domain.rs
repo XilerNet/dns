@@ -32,7 +32,9 @@ impl Domain {
     ///
     /// Whether the character is valid.
     pub fn is_valid_edge_character(c: char) -> bool {
-        c.is_ascii() && (ASCII_LOWERCASE_RANGE.contains(&(c as u8)) || ASCII_NUMBERS_RANGE.contains(&(c as u8)))
+        c.is_ascii()
+            && (ASCII_LOWERCASE_RANGE.contains(&(c as u8))
+                || ASCII_NUMBERS_RANGE.contains(&(c as u8)))
     }
 
     /// Checks if a character is valid for a domain.
@@ -126,9 +128,11 @@ impl Domain {
         let last_char = name.chars().last().unwrap();
         let name_without_edge_chars = &name[1..name.len() - 1];
 
-        Domain::is_valid_edge_character(first_char) &&
-            Domain::is_valid_edge_character(last_char) &&
-            name_without_edge_chars.chars().all(Domain::is_valid_character)
+        Domain::is_valid_edge_character(first_char)
+            && Domain::is_valid_edge_character(last_char)
+            && name_without_edge_chars
+                .chars()
+                .all(Domain::is_valid_character)
     }
 
     /// Parses a domain record from a string.
@@ -152,8 +156,12 @@ impl Domain {
             return Err(format!("Input is not a domain record: {}", input).into());
         }
 
-        let name = parts.next().ok_or_else(|| format!("Domain record is missing name: {}", input))?;
-        let valid_from = parts.next().ok_or_else(|| format!("Domain record is missing valid_from: {}", input))?;
+        let name = parts
+            .next()
+            .ok_or_else(|| format!("Domain record is missing name: {}", input))?;
+        let valid_from = parts
+            .next()
+            .ok_or_else(|| format!("Domain record is missing valid_from: {}", input))?;
 
         if parts.next().is_some() {
             return Err(format!("Input is not a domain record: {}", input).into());

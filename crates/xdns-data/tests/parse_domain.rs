@@ -11,7 +11,10 @@ fn parse_domain_normal() {
     let parsed = parsed.unwrap();
 
     assert_eq!(parsed.name, "example.o");
-    assert_eq!(parsed.valid_from, system_time_from_epoch_seconds(1685954907));
+    assert_eq!(
+        parsed.valid_from,
+        system_time_from_epoch_seconds(1685954907)
+    );
 }
 
 #[test]
@@ -24,7 +27,10 @@ fn parse_domain_one_character() {
     let parsed = parsed.unwrap();
 
     assert_eq!(parsed.name, "e.o");
-    assert_eq!(parsed.valid_from, system_time_from_epoch_seconds(1685954907));
+    assert_eq!(
+        parsed.valid_from,
+        system_time_from_epoch_seconds(1685954907)
+    );
 }
 
 #[test]
@@ -37,7 +43,10 @@ fn parse_domain_hyphen() {
     let parsed = parsed.unwrap();
 
     assert_eq!(parsed.name, "my-example.o");
-    assert_eq!(parsed.valid_from, system_time_from_epoch_seconds(1685954907));
+    assert_eq!(
+        parsed.valid_from,
+        system_time_from_epoch_seconds(1685954907)
+    );
 }
 
 #[test]
@@ -50,7 +59,10 @@ fn parse_domain_numeric() {
     let parsed = parsed.unwrap();
 
     assert_eq!(parsed.name, "54t05h1.o");
-    assert_eq!(parsed.valid_from, system_time_from_epoch_seconds(1685954907));
+    assert_eq!(
+        parsed.valid_from,
+        system_time_from_epoch_seconds(1685954907)
+    );
 }
 
 #[test]

@@ -249,6 +249,22 @@ fn valid_depth_subdomain_numbers() {
 }
 
 #[test]
+fn invalid_subdomain_dot_start() {
+    let subdomain = ".example-other.";
+    let valid = SubDomain::is_valid_subdomain(subdomain);
+
+    assert!(!valid);
+}
+
+#[test]
+fn invalid_subdomain_no_dot_end() {
+    let subdomain = "example-other";
+    let valid = SubDomain::is_valid_subdomain(subdomain);
+
+    assert!(!valid);
+}
+
+#[test]
 fn invalid_subdomain_hyphen_start() {
     let subdomain = "-example-other.";
     let valid = SubDomain::is_valid_subdomain(subdomain);

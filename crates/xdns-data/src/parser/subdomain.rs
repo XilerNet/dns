@@ -4,6 +4,7 @@ use crate::models::subdomain::*;
 use crate::prelude::Domain;
 
 const ASCII_DOT: u8 = 46;
+const ASCII_HYPHEN: u8 = 45;
 const ASCII_ASTERISK: u8 = 42;
 
 impl SubDomain {
@@ -21,7 +22,8 @@ impl SubDomain {
     ///
     /// Whether the character is valid.
     pub fn is_valid_character(c: char) -> bool {
-        Domain::is_valid_character(c) || (c.is_ascii() && (c as u8 == ASCII_DOT || c as u8 == ASCII_ASTERISK))
+        Domain::is_valid_character(c)
+            || (c.is_ascii() && (c as u8 == ASCII_DOT || c as u8 == ASCII_ASTERISK))
     }
 
     /// Checks if a subdomain is valid.
@@ -43,10 +45,27 @@ impl SubDomain {
     ///
     /// Whether the subdomain is valid.
     pub fn is_valid_subdomain(input: &str) -> bool {
-        panic!("Not implemented")
+        if input == "." {
+            return true;
+        }
+
+        if input.is_empty()
+            || input.len() > 63
+            || input.starts_with(ASCII_DOT as char)
+            || !input.ends_with(ASCII_DOT as char)
+            || input.starts_with(ASCII_HYPHEN as char)
+            || input.ends_with(ASCII_HYPHEN as char)
+        {
+            return false;
+        }
+
+        // Remove the suffix `.`
+        let input = &input[..input.len() - 1];
+
+        todo!("Not implemented")
     }
 
     pub fn parse(input: &str) -> Result<Self> {
-        panic!("Not implemented")
+        todo!("Not implemented")
     }
 }
