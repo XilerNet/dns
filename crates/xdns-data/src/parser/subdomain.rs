@@ -60,7 +60,55 @@ impl SubDomain {
         input.chars().all(SubDomain::is_valid_character)
     }
 
+    /// Parses a subdomain record from a string.
+    ///
+    /// > NOTE: This record should not include the blockchain reference nor should the signature be included.
+    ///
+    /// # Restrictions
+    ///
+    /// * The subdomain must be valid. (See [`is_valid_subdomain`](#method.is_valid_subdomain).)
+    /// * The subdomain record must be in the format *(case sensitive)*: `DNS <domain> <subdomain> <type> <class> <ttl> <rdata>`
+    ///
+    /// # Arguments
+    ///
+    /// * `input` - The string to parse.
+    ///
+    /// # Returns
+    ///
+    /// The parsed subdomain.
     pub fn parse(input: &str) -> Result<Self> {
-        todo!("Not implemented")
+        let mut parts = input.split_whitespace();
+
+        if parts.next() != Some("DNS") {
+            return Err(format!("Input is not a dns record: {}", input).into());
+        }
+
+        let domain = parts.next().ok_or_else(|| format!("DNS record is missing domain: {}", input))?;
+        let subdomain = parts.next().ok_or_else(|| format!("DNS record is missing subdomain: {}", input))?;
+        let rtype = parts.next().ok_or_else(|| format!("DNS record is missing type: {}", input))?;
+        let class = parts.next().ok_or_else(|| format!("DNS record is missing class: {}", input))?;
+        let ttl = parts.next().ok_or_else(|| format!("DNS record is missing ttl: {}", input))?;
+        let rdata = parts.next().ok_or_else(|| format!("DNS record is missing rdata: {}", input))?;
+
+        if parts.next().is_some() {
+            return Err(format!("Input is not a dns record: {}", input).into());
+        }
+
+        if !Domain::is_valid_domain_name(domain) {
+            return Err(format!("Invalid domain: {}", domain).into());
+        }
+
+        if !SubDomain::is_valid_subdomain(subdomain) {
+            return Err(format!("Invalid subdomain: {}", subdomain).into());
+        }
+
+        Ok(Self {
+            domain: domain.to_owned(),
+            subdomain: subdomain.to_owned(),
+            rtype: rtype.try_into()?,
+            class: class.try_into()?,
+            ttl: ttl.parse()?,
+            rdata: rdata.to_owned(),
+        })
     }
 }
