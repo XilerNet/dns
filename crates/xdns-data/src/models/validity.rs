@@ -17,7 +17,7 @@ pub struct Validity {
 impl TryFrom<&str> for Algorithm {
     type Error = Error;
 
-    /// Tries to convert a string to an [`Algorithm`](enum.Algorithm.html).
+    /// Tries to convert a string to an [`Algorithm`](Algorithm).
     ///
     /// # Arguments
     ///

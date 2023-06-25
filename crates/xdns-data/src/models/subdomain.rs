@@ -28,6 +28,15 @@ pub struct SubDomain {
 impl TryFrom<&str> for Type {
     type Error = Error;
 
+    /// Tries to convert a string to a [`Type`](Type).
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - The string to convert.
+    ///
+    /// # Returns
+    ///
+    /// The type.
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "A" => Ok(Self::A),
@@ -43,6 +52,15 @@ impl TryFrom<&str> for Type {
 impl TryFrom<&str> for Class {
     type Error = Error;
 
+    /// Tries to convert a string to a [`Class`](Class).
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - The string to convert.
+    ///
+    /// # Returns
+    ///
+    /// The class.
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "IN" => Ok(Self::IN),

@@ -8,7 +8,7 @@ impl SubDomain {
     ///
     /// # Restrictions
     ///
-    /// * The character must be a valid domain character or a `.` *(dot)*. See `Domain::is_valid_character`.
+    /// * The character must be a valid domain character or a `.` *(dot)*. (See [`is_valid_character`](Domain::is_valid_character).)
     ///
     /// # Arguments
     ///
@@ -27,10 +27,10 @@ impl SubDomain {
     ///
     /// * The subdomain must not be empty.
     /// * The subdomain must not be longer than 63 characters.
-    /// * The subdomain must not start or end *(ignoring the suffix `.`)* with a invalid edge character. See `Domain::is_valid_edge_character`.
+    /// * The subdomain must not start or end *(ignoring the suffix `.`)* with a invalid edge character. (See [`is_valid_edge_character`](Domain::is_valid_edge_character).)
     /// * A `.` *(dot)* must not surround a `-` *(hyphen)* or be adjacent to another `.` *(dot)*.
     /// * The subdomain must not contain any uppercase characters.
-    /// * The subdomain must not contain any invalid characters. See `SubDomain::is_valid_character`.
+    /// * The subdomain must not contain any invalid characters. (See [`is_valid_character`](SubDomain::is_valid_character).)
     ///
     /// # Arguments
     ///
@@ -66,8 +66,8 @@ impl SubDomain {
     ///
     /// # Restrictions
     ///
-    /// * The subdomain must be valid. (See [`is_valid_subdomain`](#method.is_valid_subdomain).)
-    /// * The domain must be valid. (See [`Domain::is_valid_domain_name`](../prelude/struct.Domain.html#method.is_valid_domain_name).)
+    /// * The subdomain must be valid. (See [`is_valid_subdomain`](SubDomain::is_valid_subdomain).)
+    /// * The domain must be valid. (See [`Domain::is_valid_domain_name`](Domain::is_valid_domain_name).)
     /// * The subdomain record must be in the format *(case sensitive)*: `DNS <domain> <subdomain> <type> <class> <ttl> <rdata>`
     ///
     /// # Arguments

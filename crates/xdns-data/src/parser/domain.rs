@@ -96,8 +96,8 @@ impl Domain {
     /// # Restrictions
     ///
     /// * The domain must be at least one character long.
-    /// * The domain must not contain any invalid characters. (See [`is_valid_character`](#method.is_valid_character).)
-    /// * The domain first and last characters must be valid. (See [`is_valid_edge_character`](#method.is_valid_edge_character).)
+    /// * The domain must not contain any invalid characters. (See [`is_valid_character`](Domain::is_valid_character).)
+    /// * The domain first and last characters must be valid. (See [`is_valid_edge_character`](Domain::is_valid_edge_character).)
     /// * The domain must not be longer than 254 characters.
     ///
     /// # Arguments
@@ -139,7 +139,7 @@ impl Domain {
     ///
     /// # Restrictions
     ///
-    /// * The domain must be valid. (See [`is_valid_domain_name`](#method.is_valid_domain_name).)
+    /// * The domain must be valid. (See [`is_valid_domain_name`](Domain::is_valid_domain_name).)
     /// * The domain record must be in the format *(case sensitive)*: `DOMAIN <name> <valid_from>`
     ///
     /// # Arguments
