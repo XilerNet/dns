@@ -1,6 +1,7 @@
 use std::net::{Ipv4Addr, Ipv6Addr};
 
 use shared::prelude::*;
+use xdns_data::models::subdomain;
 
 use crate::packets::byte_packet_buffer::BytePacketBuffer;
 use crate::packets::query_type::QueryType;
@@ -54,7 +55,7 @@ impl DnsRecord {
         let data_len = buffer.read_u16()?;
 
         match qtype {
-            QueryType::A => {
+            QueryType::SUB(subdomain::Type::A) => {
                 let raw_addr = buffer.read_u32()?;
                 let addr = Ipv4Addr::new(
                     ((raw_addr >> 24) & 0xFF) as u8,
@@ -65,7 +66,7 @@ impl DnsRecord {
 
                 Ok(DnsRecord::A { domain, addr, ttl })
             }
-            QueryType::AAAA => {
+            QueryType::SUB(subdomain::Type::AAAA) => {
                 let raw_addr1 = buffer.read_u32()?;
                 let raw_addr2 = buffer.read_u32()?;
                 let raw_addr3 = buffer.read_u32()?;
@@ -83,19 +84,19 @@ impl DnsRecord {
 
                 Ok(DnsRecord::AAAA { domain, addr, ttl })
             }
-            QueryType::NS => {
+            QueryType::SUB(subdomain::Type::NS) => {
                 let mut host = String::new();
                 buffer.read_qname(&mut host)?;
 
                 Ok(DnsRecord::NS { domain, host, ttl })
             }
-            QueryType::CNAME => {
+            QueryType::SUB(subdomain::Type::CNAME) => {
                 let mut host = String::new();
                 buffer.read_qname(&mut host)?;
 
                 Ok(DnsRecord::CNAME { domain, host, ttl })
             }
-            QueryType::MX => {
+            QueryType::SUB(subdomain::Type::MX) => {
                 let priority = buffer.read_u16()?;
                 let mut mx = String::new();
                 buffer.read_qname(&mut mx)?;
@@ -130,7 +131,7 @@ impl DnsRecord {
                 ttl,
             } => {
                 buffer.write_qname(domain)?;
-                buffer.write_u16(QueryType::A.to_num())?;
+                buffer.write_u16(QueryType::SUB(subdomain::Type::A).to_num())?;
                 buffer.write_u16(1)?;
                 buffer.write_u32(ttl)?;
                 buffer.write_u16(4)?;
@@ -147,7 +148,7 @@ impl DnsRecord {
                 ttl,
             } => {
                 buffer.write_qname(domain)?;
-                buffer.write_u16(QueryType::NS.to_num())?;
+                buffer.write_u16(QueryType::SUB(subdomain::Type::NS).to_num())?;
                 buffer.write_u16(1)?;
                 buffer.write_u32(ttl)?;
 
@@ -165,7 +166,7 @@ impl DnsRecord {
                 ttl,
             } => {
                 buffer.write_qname(domain)?;
-                buffer.write_u16(QueryType::CNAME.to_num())?;
+                buffer.write_u16(QueryType::SUB(subdomain::Type::CNAME).to_num())?;
                 buffer.write_u16(1)?;
                 buffer.write_u32(ttl)?;
 
@@ -184,7 +185,7 @@ impl DnsRecord {
                 ttl,
             } => {
                 buffer.write_qname(domain)?;
-                buffer.write_u16(QueryType::MX.to_num())?;
+                buffer.write_u16(QueryType::SUB(subdomain::Type::MX).to_num())?;
                 buffer.write_u16(1)?;
                 buffer.write_u32(ttl)?;
 
@@ -203,7 +204,7 @@ impl DnsRecord {
                 ttl,
             } => {
                 buffer.write_qname(domain)?;
-                buffer.write_u16(QueryType::AAAA.to_num())?;
+                buffer.write_u16(QueryType::SUB(subdomain::Type::AAAA).to_num())?;
                 buffer.write_u16(1)?;
                 buffer.write_u32(ttl)?;
                 buffer.write_u16(16)?;
@@ -222,11 +223,11 @@ impl DnsRecord {
 
     pub fn type_of(&self) -> QueryType {
         match *self {
-            DnsRecord::A { .. } => QueryType::A,
-            DnsRecord::AAAA { .. } => QueryType::AAAA,
-            DnsRecord::NS { .. } => QueryType::NS,
-            DnsRecord::CNAME { .. } => QueryType::CNAME,
-            DnsRecord::MX { .. } => QueryType::MX,
+            DnsRecord::A { .. } => QueryType::SUB(subdomain::Type::A),
+            DnsRecord::AAAA { .. } => QueryType::SUB(subdomain::Type::AAAA),
+            DnsRecord::NS { .. } => QueryType::SUB(subdomain::Type::NS),
+            DnsRecord::CNAME { .. } => QueryType::SUB(subdomain::Type::CNAME),
+            DnsRecord::MX { .. } => QueryType::SUB(subdomain::Type::MX),
             DnsRecord::UNKNOWN { qtype, .. } => QueryType::UNKNOWN(qtype),
         }
     }

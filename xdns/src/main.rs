@@ -11,7 +11,6 @@ const PORT: u16 = 53;
 
 fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<DnsPacket> {
     println!("Looking up {:?} {:?}", qname, qtype);
-    println!("Packet: {:?}", packet);
 
     let mut packet = match packet {
         Some(packet) => packet,

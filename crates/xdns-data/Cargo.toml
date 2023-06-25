@@ -1,8 +1,8 @@
 [package]
-name = "dns_utils"
+name = "xdns_data"
 version = "0.0.1"
 edition = "2021"
+description="Data structures for xdns, also includes parsing"
 
 [dependencies]
 shared = {path = "../shared"}
-xdns_data = {path = "../xdns-data"}
