@@ -116,3 +116,91 @@ pub fn parse_domain_invalid_missing_epoch() {
 
     assert!(parsed.is_err());
 }
+
+#[test]
+pub fn is_domain_name_valid_normal() {
+    let domain = "example.o";
+    let is_valid = Domain::is_valid_domain_name(domain);
+
+    assert!(is_valid);
+}
+
+#[test]
+pub fn is_domain_name_valid_one_character() {
+    let domain = "e.o";
+    let is_valid = Domain::is_valid_domain_name(domain);
+
+    assert!(is_valid);
+}
+
+#[test]
+pub fn is_domain_name_valid_hyphen() {
+    let domain = "my-example.o";
+    let is_valid = Domain::is_valid_domain_name(domain);
+
+    assert!(is_valid);
+}
+
+#[test]
+pub fn is_domain_name_valid_numeric() {
+    let domain = "54t05h1.o";
+    let is_valid = Domain::is_valid_domain_name(domain);
+
+    assert!(is_valid);
+}
+
+#[test]
+pub fn is_domain_name_invalid_empty() {
+    let domain = ".o";
+    let is_valid = Domain::is_valid_domain_name(domain);
+
+    assert!(!is_valid);
+}
+
+#[test]
+pub fn is_domain_name_invalid_too_long() {
+    let domain = "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111.o";
+    let is_valid = Domain::is_valid_domain_name(domain);
+
+    assert!(!is_valid);
+}
+
+#[test]
+pub fn is_domain_name_invalid_prefix_hyphen() {
+    let domain = "-invalid.o";
+    let is_valid = Domain::is_valid_domain_name(domain);
+
+    assert!(!is_valid);
+}
+
+#[test]
+pub fn is_domain_name_invalid_character() {
+    let domain = "invalid*.o";
+    let is_valid = Domain::is_valid_domain_name(domain);
+
+    assert!(!is_valid);
+}
+
+#[test]
+pub fn is_domain_name_invalid_single_character() {
+    let domain = "*.o";
+    let is_valid = Domain::is_valid_domain_name(domain);
+
+    assert!(!is_valid);
+}
+
+#[test]
+pub fn is_domain_name_invalid_uppercase() {
+    let domain = "INVALID.o";
+    let is_valid = Domain::is_valid_domain_name(domain);
+
+    assert!(!is_valid);
+}
+
+#[test]
+pub fn is_domain_name_invalid_missing_tld() {
+    let domain = "invalid";
+    let is_valid = Domain::is_valid_domain_name(domain);
+
+    assert!(!is_valid);
+}
