@@ -10,8 +10,8 @@ fn valid_validity() {
 
     let validity = validity.unwrap();
     assert_eq!(validity.domain, "example.o");
-    assert_eq!(validity.algorithm, Algorithm::Ed25519);
-    assert_eq!(validity.key, b"naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo");
+    assert_eq!(validity.credentials.algorithm, Algorithm::Ed25519);
+    assert_eq!(validity.credentials.public_key, b"naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo");
 }
 
 #[test]

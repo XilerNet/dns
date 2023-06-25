@@ -8,10 +8,15 @@ pub enum Algorithm {
 }
 
 #[derive(Debug)]
+pub struct Credentials {
+    pub algorithm: Algorithm,
+    pub public_key: Vec<u8>,
+}
+
+#[derive(Debug)]
 pub struct Validity {
     pub domain: String,
-    pub algorithm: Algorithm,
-    pub key: Vec<u8>,
+    pub credentials: Credentials,
 }
 
 impl TryFrom<&str> for Algorithm {
