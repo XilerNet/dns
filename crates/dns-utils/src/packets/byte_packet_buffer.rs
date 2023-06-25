@@ -1,6 +1,8 @@
 use shared::prelude::*;
 
-use crate::bitwise::{has_flag, JUMP_FLAG, merge_u16_as_u32, merge_u8_as_u16, split_32_as_u8s, split_u16_as_u8s};
+use crate::bitwise::{
+    has_flag, merge_u16_as_u32, merge_u8_as_u16, split_32_as_u8s, split_u16_as_u8s, JUMP_FLAG,
+};
 
 const BUFFER_MAX_SIZE: usize = 512;
 const MAX_JUMP_COUNT: usize = 5;
@@ -88,12 +90,14 @@ impl BytePacketBuffer {
         let mut jumped = false;
         let mut jumps_performed = 0;
 
-        let mut delim = "";  // empty because we don't want our first iteration to start with a delimiter (.)
+        let mut delim = ""; // empty because we don't want our first iteration to start with a delimiter (.)
 
         loop {
             // Prevent DNS cycle attacks
             if jumps_performed > MAX_JUMP_COUNT {
-                return Err(format!("Exceeded limit of allowed jumps. ({})", MAX_JUMP_COUNT).into());
+                return Err(
+                    format!("Exceeded limit of allowed jumps. ({})", MAX_JUMP_COUNT).into(),
+                );
             }
 
             let len = self.get(pos)?;

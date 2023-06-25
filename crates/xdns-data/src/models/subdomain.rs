@@ -22,7 +22,7 @@ pub struct SubDomain {
     pub rtype: Type,
     pub class: Class,
     pub ttl: u32,
-    pub rdata: String
+    pub rdata: String,
 }
 
 impl TryFrom<&str> for Type {

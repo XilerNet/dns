@@ -1,6 +1,6 @@
-use std::net::UdpSocket;
 use dns_utils::prelude::*;
 use shared::prelude::*;
+use std::net::UdpSocket;
 use xdns_data::prelude::Type::A;
 
 #[test]
@@ -49,7 +49,10 @@ fn test_stub_resolver() -> Result<()> {
     assert_eq!(res_packet.questions[0].qtype, qtype);
 
     assert!(res_packet.answers.len() > 0);
-    assert!(matches!(res_packet.answers.last(), Some(DnsRecord::A {..})));
+    assert!(matches!(
+        res_packet.answers.last(),
+        Some(DnsRecord::A { .. })
+    ));
 
     assert_eq!(res_packet.authorities.len(), 0);
     assert_eq!(res_packet.resources.len(), 0);

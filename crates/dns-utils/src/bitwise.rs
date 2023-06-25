@@ -5,8 +5,10 @@ pub const JUMP_FLAG: u8 = 0xC0;
 /// Merge two numbers with offset, this way you can merge two u8's that are behind
 /// each other into their corresponding u16 value.
 fn merge_two_numbers_with_offset_as<T, R>(n1: T, n2: T, offset: usize) -> R
-    where T: Into<R>,
-          R: BitOr<Output=R> + Shl<usize, Output=R> {
+where
+    T: Into<R>,
+    R: BitOr<Output = R> + Shl<usize, Output = R>,
+{
     (n1.into() << offset) | n2.into()
 }
 
@@ -27,10 +29,7 @@ pub fn has_flag(value: u8, flag: u8) -> bool {
 
 // Direct a u16 into two u8's.
 pub fn split_u16_as_u8s(n: u16) -> [u8; 2] {
-    [
-        ((n >> 8) & 0xFF) as u8,
-        (n & 0xFF) as u8,
-    ]
+    [((n >> 8) & 0xFF) as u8, (n & 0xFF) as u8]
 }
 
 // Direct a u32 into four u8's.

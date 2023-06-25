@@ -5,11 +5,7 @@ pub mod packets;
 
 pub mod prelude {
     pub use crate::packets::{
-        byte_packet_buffer::BytePacketBuffer,
-        dns_packet::DnsPacket,
-        result_code::ResultCode,
-        query_type::QueryType,
-        dns_record::DnsRecord,
-        dns_question::DnsQuestion,
+        byte_packet_buffer::BytePacketBuffer, dns_packet::DnsPacket, dns_question::DnsQuestion,
+        dns_record::DnsRecord, query_type::QueryType, result_code::ResultCode,
     };
 }

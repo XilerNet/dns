@@ -83,12 +83,24 @@ impl SubDomain {
             return Err(format!("Input is not a dns record: {}", input).into());
         }
 
-        let domain = parts.next().ok_or_else(|| format!("DNS record is missing domain: {}", input))?;
-        let subdomain = parts.next().ok_or_else(|| format!("DNS record is missing subdomain: {}", input))?;
-        let rtype = parts.next().ok_or_else(|| format!("DNS record is missing type: {}", input))?;
-        let class = parts.next().ok_or_else(|| format!("DNS record is missing class: {}", input))?;
-        let ttl = parts.next().ok_or_else(|| format!("DNS record is missing ttl: {}", input))?;
-        let rdata = parts.next().ok_or_else(|| format!("DNS record is missing rdata: {}", input))?;
+        let domain = parts
+            .next()
+            .ok_or_else(|| format!("DNS record is missing domain: {}", input))?;
+        let subdomain = parts
+            .next()
+            .ok_or_else(|| format!("DNS record is missing subdomain: {}", input))?;
+        let rtype = parts
+            .next()
+            .ok_or_else(|| format!("DNS record is missing type: {}", input))?;
+        let class = parts
+            .next()
+            .ok_or_else(|| format!("DNS record is missing class: {}", input))?;
+        let ttl = parts
+            .next()
+            .ok_or_else(|| format!("DNS record is missing ttl: {}", input))?;
+        let rdata = parts
+            .next()
+            .ok_or_else(|| format!("DNS record is missing rdata: {}", input))?;
 
         if parts.next().is_some() {
             return Err(format!("Input is not a dns record: {}", input).into());

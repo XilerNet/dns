@@ -1,5 +1,5 @@
-use std::mem;
 use shared::prelude::*;
+use std::mem;
 
 use crate::packets::byte_packet_buffer::BytePacketBuffer;
 use crate::packets::dns_header::DnsHeader;

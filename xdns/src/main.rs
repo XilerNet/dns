@@ -35,13 +35,11 @@ fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<Dn
                 header: packet.header,
                 questions: packet.questions,
                 original_questions: None,
-                answers: vec![
-                    DnsRecord::CNAME {
-                        domain: qname.to_string(),
-                        host: "xiler.net".to_string(),
-                        ttl: 64,
-                    }
-                ],
+                answers: vec![DnsRecord::CNAME {
+                    domain: qname.to_string(),
+                    host: "xiler.net".to_string(),
+                    ttl: 64,
+                }],
                 authorities: vec![],
                 resources: vec![],
             };
@@ -82,7 +80,7 @@ fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<Dn
                 }
                 Ok(packet.make_returnable())
             }
-            e @ Err(_) => e
+            e @ Err(_) => e,
         }
     }
 }
