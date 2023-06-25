@@ -118,6 +118,30 @@ pub fn parse_domain_invalid_missing_epoch() {
 }
 
 #[test]
+pub fn parse_domain_invalid_keyword() {
+    let domain = "DOMAINS invalid.o 1685954907";
+    let parsed = Domain::parse(domain);
+
+    assert!(parsed.is_err());
+}
+
+#[test]
+pub fn parse_domain_invalid_keyword_lowercase() {
+    let domain = "domain invalid.o 1685954907";
+    let parsed = Domain::parse(domain);
+
+    assert!(parsed.is_err());
+}
+
+#[test]
+pub fn parse_domain_invalid_data() {
+    let domain = "Some inscription content here which is not a domain record!";
+    let parsed = Domain::parse(domain);
+
+    assert!(parsed.is_err());
+}
+
+#[test]
 pub fn is_domain_name_valid_normal() {
     let domain = "example.o";
     let is_valid = Domain::is_valid_domain_name(domain);

@@ -1,6 +1,7 @@
 use std::ops::RangeInclusive;
 
 use shared::common::Result;
+use shared::time::system_time_from_epoch_seconds;
 
 use crate::models::domain::Domain;
 
@@ -145,6 +146,33 @@ impl Domain {
     ///
     /// The parsed domain.
     pub fn parse(input: &str) -> Result<Self> {
-        Err("Not implemented".into())
+        let mut parts = input.split_whitespace();
+
+        if parts.next() != Some("DOMAIN") {
+            return Err(format!("Input is not a domain record: {}", input).into());
+        }
+
+        if let Some(name) = parts.next() {
+            if let Some(valid_from) = parts.next() {
+                if parts.next().is_some() {
+                    return Err(format!("Input is not a domain record: {}", input).into());
+                }
+
+                if !Domain::is_valid_domain_name(name) {
+                    return Err(format!("Invalid domain name: {}", name).into());
+                }
+
+                let valid_from = valid_from.parse::<u64>().map_err(|e| format!("Invalid valid_from: {}: {}", valid_from, e))?;
+
+                return Ok(Self {
+                    name: name.to_owned(),
+                    valid_from: system_time_from_epoch_seconds(valid_from)
+                });
+            }
+
+            return Err(format!("Domain record is missing valid_from: {}", input).into());
+        }
+
+        Err(format!("Domain record is missing name: {}", input).into())
     }
 }
