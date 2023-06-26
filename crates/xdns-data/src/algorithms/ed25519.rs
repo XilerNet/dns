@@ -3,6 +3,7 @@ use ed25519_dalek::{Signature, Verifier, VerifyingKey};
 use crate::traits::verify::Verify;
 use shared::common::Result;
 
+#[derive(Debug)]
 pub struct Ed25519 {
     pubic_key: VerifyingKey,
 }

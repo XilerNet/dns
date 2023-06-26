@@ -1,6 +1,6 @@
+use crate::models::credentials::Credentials;
 use shared::common::Error;
 
-use crate::models::validity::Credentials;
 use crate::models::validity_transfer::ValidityTransfer;
 use crate::prelude::{Domain, Parser};
 
@@ -40,10 +40,7 @@ impl Parser for ValidityTransfer {
                 format!("Validity transfer record is missing public key: {}", input)
             })?;
 
-            Some(Credentials {
-                algorithm: algorithm.try_into()?,
-                public_key: public_key.as_bytes().to_vec(),
-            })
+            Some(Credentials::new(algorithm.try_into()?, public_key.into()))
         } else {
             None
         };

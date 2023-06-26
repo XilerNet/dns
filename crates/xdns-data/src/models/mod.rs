@@ -1,4 +1,5 @@
 pub mod algorithm;
+pub mod credentials;
 pub mod data;
 pub mod domain;
 pub mod drop;

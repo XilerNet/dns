@@ -30,7 +30,7 @@ fn parse_valid_transfer_with_new() {
     assert_eq!(credentials.algorithm, Algorithm::Ed25519);
     assert_eq!(
         credentials.public_key,
-        b"naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo"
+        "naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo"
     );
 }
 

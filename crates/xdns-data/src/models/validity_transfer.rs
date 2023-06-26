@@ -1,4 +1,4 @@
-use crate::models::validity::Credentials;
+use crate::models::credentials::Credentials;
 
 #[derive(Debug)]
 pub struct ValidityTransfer {

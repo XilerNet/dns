@@ -1,6 +1,7 @@
 use shared::common::Result;
+use std::fmt::Debug;
 
-pub trait Verify {
+pub trait Verify: Debug {
     /// Creates a new instance of the verifier.
     /// This instance can be used to verify signatures.
     ///

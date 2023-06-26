@@ -1,7 +1,9 @@
-use crate::models::validity::{Credentials, Validity};
+use shared::common::Result;
+
+use crate::models::credentials::Credentials;
+use crate::models::validity::Validity;
 use crate::prelude::Domain;
 use crate::traits::parser::Parser;
-use shared::common::Result;
 
 impl Parser for Validity {
     /// Parses a validity record from a string.
@@ -46,10 +48,7 @@ impl Parser for Validity {
 
         Ok(Self {
             domain: domain.to_owned(),
-            credentials: Credentials {
-                algorithm: algorithm.try_into()?,
-                public_key: key.into(),
-            },
+            credentials: Credentials::new(algorithm.try_into()?, key.into()),
         })
     }
 }
