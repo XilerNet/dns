@@ -27,23 +27,17 @@ impl Parser for Signature {
             .map(str::trim)
             .filter(|&part| !part.is_empty());
 
-        let last_line = lines
-            .next_back()
-            .ok_or_else(|| format!("Invalid signature: {}", input))?;
+        let last_line = lines.next_back().ok_or_else(|| format!("Invalid signature: {}", input))?;
 
-        let last_line_parts = last_line.split_whitespace().collect::<Vec<_>>();
-        let signature = last_line_parts[last_line_parts.len() - 1];
+        let last_line_parts: Vec<_> = last_line.split_whitespace().collect();
+        let signature = last_line_parts.last().ok_or_else(|| format!("Invalid signature: {}", input))?;
 
         if !signature.chars().all(|c| c.is_ascii_hexdigit()) {
             return Err(format!("Signature must consist of all hexadecimal characters: {}", input).into());
         }
 
-        let mut content = lines
-            .map(str::trim)
-            .map(|line| line.to_string())
-            .collect::<Vec<_>>();
-
-        let latest_line = last_line_parts[0..last_line_parts.len() - 1].join(" ");
+        let mut content: Vec<String> = lines.map(str::to_string).collect();
+        let latest_line = last_line_parts[..last_line_parts.len() - 1].join(" ");
 
         if !latest_line.is_empty() {
             content.push(latest_line);
