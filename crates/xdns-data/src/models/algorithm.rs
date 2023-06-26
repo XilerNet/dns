@@ -34,7 +34,7 @@ impl Algorithm {
     /// The [`Verify`](Verify) instance.
     pub fn get_verifier(&self, public_key: &[u8]) -> Result<Box<dyn Verify>, Error> {
         match self {
-            Algorithm::Ed25519 => Ok(Box::new(Ed25519::new(public_key.try_into()?))),
+            Algorithm::Ed25519 => Ok(Box::new(Ed25519::new(public_key.try_into()?)?)),
         }
     }
 }

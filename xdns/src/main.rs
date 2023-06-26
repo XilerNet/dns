@@ -6,7 +6,7 @@ use std::net::UdpSocket;
 use dns_utils::prelude::*;
 use shared::prelude::*;
 
-const SERVER: (&str, u16) = ("8.8.8.8", 53);
+const SERVER: (&str, u16) = ("1.1.1.1", 53);
 const PORT: u16 = 53;
 
 fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<DnsPacket> {
