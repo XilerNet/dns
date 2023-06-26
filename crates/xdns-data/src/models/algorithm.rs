@@ -1,6 +1,7 @@
+use shared::common::Error;
+
 use crate::algorithms::ed25519::Ed25519;
 use crate::traits::verify::Verify;
-use shared::common::Error;
 
 #[derive(PartialEq, Eq, Debug, Clone, Hash, Copy)]
 pub enum Algorithm {
@@ -31,9 +32,9 @@ impl Algorithm {
     /// # Returns
     ///
     /// The [`Verify`](Verify) instance.
-    pub fn get_verifier(&self, public_key: &[u8; 32]) -> Box<dyn Verify> {
+    pub fn get_verifier(&self, public_key: &[u8]) -> Result<Box<dyn Verify>, Error> {
         match self {
-            Algorithm::Ed25519 => Box::new(Ed25519::new(public_key)),
+            Algorithm::Ed25519 => Ok(Box::new(Ed25519::new(public_key.try_into()?))),
         }
     }
 }
