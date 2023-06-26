@@ -22,40 +22,31 @@ impl Parser for Signature {
     ///
     /// The parsed signature.
     fn parse(input: &str) -> Result<Self> {
-        let parts = input
+        let mut lines = input
             .split_terminator('\n')
-            .map(|part| part.trim())
-            .filter(|part| !part.is_empty());
+            .map(str::trim)
+            .filter(|&part| !part.is_empty());
 
-        let last_part = parts
-            .clone()
-            .last()
-            .ok_or_else(|| format!("Invalid signature: {}", input))?
-            .split_whitespace();
+        let last_line = lines
+            .next_back()
+            .ok_or_else(|| format!("Invalid signature: {}", input))?;
 
-        let signature = last_part
-            .clone()
-            .last()
-            .ok_or_else(|| format!("Signature not present: {}", input))?;
+        let last_line_parts = last_line.split_whitespace().collect::<Vec<_>>();
+        let signature = last_line_parts[last_line_parts.len() - 1];
 
         if !signature.chars().all(|c| c.is_ascii_hexdigit()) {
             return Err(format!("Signature must consist of all hexadecimal characters: {}", input).into());
         }
 
-        let last_content = last_part
-            .take_while(|part| part != &signature)
-            .map(|part| part.to_string())
-            .collect::<Vec<_>>()
-            .join(" ");
-
-        let mut content = parts
-            .take_while(|part| part != &signature)
-            .map(|part| part.to_string())
+        let mut content = lines
+            .map(str::trim)
+            .map(|line| line.to_string())
             .collect::<Vec<_>>();
 
-        if !last_content.is_empty() {
-            let length = content.len();
-            content[length - 1] = last_content.to_string();
+        let latest_line = last_line_parts[0..last_line_parts.len() - 1].join(" ");
+
+        if !latest_line.is_empty() {
+            content.push(latest_line);
         }
 
         Ok(Self {
