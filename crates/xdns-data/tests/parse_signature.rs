@@ -10,7 +10,8 @@ fn parse_message_signature() {
     assert!(parsed_signature.is_ok());
 
     let parsed_signature = parsed_signature.unwrap();
-    assert_eq!(parsed_signature.as_ref(), signature);
+    assert_eq!(parsed_signature.signature, signature);
+    assert_eq!(parsed_signature.content, "Xiler - decentralising the centralised");
 }
 
 #[test]
