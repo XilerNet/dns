@@ -2,6 +2,6 @@ use std::fmt::Debug;
 
 #[derive(Debug)]
 pub struct Signature {
-    pub content: String,
+    pub content: Vec<String>,
     pub signature: String,
 }
