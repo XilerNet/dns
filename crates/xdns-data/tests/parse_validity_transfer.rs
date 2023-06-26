@@ -1,4 +1,4 @@
-use xdns_data::models::validity::Algorithm;
+use xdns_data::models::algorithm::Algorithm;
 use xdns_data::models::validity_transfer::ValidityTransfer;
 use xdns_data::prelude::Parser;
 
@@ -16,7 +16,8 @@ fn parse_valid_transfer_without_new() {
 
 #[test]
 fn parse_valid_transfer_with_new() {
-    let input = "DOMAIN-VALIDATE-TRANSFER example.o ed25519 naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo";
+    let input =
+        "DOMAIN-VALIDATE-TRANSFER example.o ed25519 naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo";
     let parsed = ValidityTransfer::parse(input);
 
     assert!(parsed.is_ok());
@@ -27,7 +28,10 @@ fn parse_valid_transfer_with_new() {
 
     let credentials = parsed.new_credentials.unwrap();
     assert_eq!(credentials.algorithm, Algorithm::Ed25519);
-    assert_eq!(credentials.public_key, b"naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo");
+    assert_eq!(
+        credentials.public_key,
+        b"naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo"
+    );
 }
 
 #[test]
@@ -48,7 +52,8 @@ fn parse_invalid_transfer_domain() {
 
 #[test]
 fn parse_invalid_transfer_algorithm() {
-    let input = "DOMAIN-VALIDATE-TRANSFER example.o invalid naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo";
+    let input =
+        "DOMAIN-VALIDATE-TRANSFER example.o invalid naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo";
     let parsed = ValidityTransfer::parse(input);
 
     assert!(parsed.is_err());

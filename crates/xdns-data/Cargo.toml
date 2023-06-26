@@ -5,4 +5,7 @@ edition = "2021"
 description="Data structures for xdns, also includes parsing"
 
 [dependencies]
+ed25519-dalek = "2.0.0-rc.3"
+hex = "0.4.3"
+hex-literal = "0.4.1"
 shared = {path = "../shared"}

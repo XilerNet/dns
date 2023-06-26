@@ -1,6 +1,6 @@
-use shared::common::Result;
 use crate::models::data::Data;
 use crate::prelude::{Domain, Parser};
+use shared::common::Result;
 
 impl Parser for Data {
     /// Parse extra domain data, this is useful for when building custom protocols on top of DNS
@@ -20,7 +20,7 @@ impl Parser for Data {
     /// # Returns
     ///
     /// The parsed data.
-    fn parse(input: &str) -> Result<Self > {
+    fn parse(input: &str) -> Result<Self> {
         let mut parts = input.split_whitespace();
 
         if parts.next() != Some("DOMAIN-DATA") {
@@ -41,6 +41,9 @@ impl Parser for Data {
             return Err(format!("Domain data record is missing data: {}", input).into());
         }
 
-        Ok(Self { domain: domain.to_string(), data })
+        Ok(Self {
+            domain: domain.to_string(),
+            data,
+        })
     }
 }

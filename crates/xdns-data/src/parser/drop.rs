@@ -1,7 +1,6 @@
-use shared::common::Result;
-use crate::prelude::Parser;
 use crate::models::drop::DomainDrop;
-
+use crate::prelude::Parser;
+use shared::common::Result;
 
 impl Parser for DomainDrop {
     /// Parse a drop record. This record can drop a subdomain or a domain all together.
@@ -32,6 +31,8 @@ impl Parser for DomainDrop {
             return Err(format!("Drop record has too many parts: {}", input).into());
         }
 
-        Ok(Self { inscription: inscription.to_string() })
+        Ok(Self {
+            inscription: inscription.to_string(),
+        })
     }
 }

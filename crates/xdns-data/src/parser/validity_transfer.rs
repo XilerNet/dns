@@ -21,7 +21,10 @@ impl Parser for ValidityTransfer {
     /// # Returns
     ///
     /// The parsed validity transfer record.
-    fn parse(input: &str) -> Result<Self, Error> where Self: Sized {
+    fn parse(input: &str) -> Result<Self, Error>
+    where
+        Self: Sized,
+    {
         let mut parts = input.split_whitespace();
 
         if parts.next() != Some("DOMAIN-VALIDATE-TRANSFER") {
@@ -33,9 +36,9 @@ impl Parser for ValidityTransfer {
             .ok_or_else(|| format!("Validity transfer record is missing domain: {}", input))?;
 
         let new_credentials = if let Some(algorithm) = parts.next() {
-            let public_key = parts
-                .next()
-                .ok_or_else(|| format!("Validity transfer record is missing public key: {}", input))?;
+            let public_key = parts.next().ok_or_else(|| {
+                format!("Validity transfer record is missing public key: {}", input)
+            })?;
 
             Some(Credentials {
                 algorithm: algorithm.try_into()?,

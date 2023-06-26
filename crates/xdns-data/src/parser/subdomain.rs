@@ -60,7 +60,6 @@ impl SubDomain {
 
         input.chars().all(SubDomain::is_valid_character)
     }
-
 }
 
 impl Parser for SubDomain {
