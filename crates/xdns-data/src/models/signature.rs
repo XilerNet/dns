@@ -5,6 +5,8 @@ use crate::models::Credentials;
 pub struct Signature {
     pub content: Vec<String>,
     pub signature: String,
+    pub last_id: Option<String>,
+    pub(crate) last_id_on_separate_line: bool,
 }
 
 impl Signature {
@@ -25,9 +27,11 @@ impl Signature {
         }
 
         let signature = signature.unwrap();
+        let separator = if self.last_id_on_separate_line { "\n" } else { " " };
+        let signature_content = self.content.join("\n") + separator + self.last_id.as_ref().unwrap_or(&"null".to_string()).as_str();
 
         let is_valid = credentials.try_is_valid(
-            self.content.join("\n").as_bytes(),
+            signature_content.as_bytes(),
             &signature,
         );
 

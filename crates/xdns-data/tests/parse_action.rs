@@ -29,43 +29,43 @@ macro_rules! parse_action_with_signature {
 
 #[test]
 fn parse_action_domain_registration() {
-    let input = "DOMAIN example.o 1685954907 null";
+    let input = "DOMAIN example.o 1685954907 null null";
     parse_action!(input, DomainAction::Domain(_));
 }
 
 #[test]
 fn parse_action_subdomain() {
-    let input = "DNS example.o example. CNAME IN 30 example.com 987A990BE5A7C872E404321EBDA1D8B35B5159F65E349F8D2BAD76D716F5EF1C3724748B2724B8983C2F33B9D0E117F6B2B712B39EF18C4CB492488D88961E0A";
+    let input = "DNS example.o example. CNAME IN 30 example.com null 92C7B915886F7B854A4DED977BFCA54742925D59B0C0D4382B17D7B6FF18C0EFB3AC773965A2BD60A70299D730C5306587A72578F4D3FA944594AC777C9A3B07";
     parse_action_with_signature!(input, DomainAction::Subdomain(_));
 }
 
 #[test]
 fn parse_action_drop() {
-    let input = "DROP 1234567890 55590C3FE2BA102F5C3A530A25D40C3D08C1C56359AB92E14E9C308400294D1B23CB4D8E2CCCF7D4D7D49095789472ADA3854B46769A4F367A62010B00ACCF0C";
+    let input = "DROP 1234567890 null DCD7212911B444837FD1C53917BA8A6ABDCE3E1A3FA44049237089DD87CA7AA696494FA2A61E704F5B71BDAB81633188BAB6171A245240C2957E2DD1E4D8A40E";
     parse_action_with_signature!(input, DomainAction::Drop(_));
 }
 
 #[test]
 fn parse_action_validity() {
-    let input = "DOMAIN-VALIDITY example.o ed25519 naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo null";
+    let input = "DOMAIN-VALIDITY example.o ed25519 null naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo null";
     parse_action!(input, DomainAction::Validity(_));
 }
 
 #[test]
 fn parse_action_validity_transfer_without_new() {
-    let input = "DOMAIN-VALIDATE-TRANSFER example.o A77265C64C44DE3DCFA2942C5B8944B5969484A9D69F4008AE3241472F6AC835BACC169A0B6A739DF447EC8B06DA38D1D531680CCE8B05A8E6734E1B1D72F90E";
+    let input = "DOMAIN-VALIDATE-TRANSFER example.o null 170A1DE6B4C476D6FF70E6091FAD50EF054E817BDA3C74D35390192901400B0C8F439FF766A53B673D45DAAD1266F3B63F1614D2D3FA5EEE8B5E7D334F56AC0F";
     parse_action_with_signature!(input, DomainAction::ValidityTransfer(_));
 }
 
 #[test]
 fn parse_action_validity_transfer_with_new() {
-    let input = "DOMAIN-VALIDATE-TRANSFER example.o ed25519 naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo EE5C50FF961F148233205357E76010D6BBB3B10DDC8645D7021FF33ACB246534EBCFD8D3AF13A56D7CFB7CDB7251D0C06923C8E28E7E02B4FCB5324A7FE4AC03";
+    let input = "DOMAIN-VALIDATE-TRANSFER example.o ed25519 naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo null F04777CDADDE6251ECAC99DEDCC01B677056FC62A96B9C03A88B5E520BA4025F837F8CD6AA16F9605661BB95C85ECBC9AAC5003A083C8FA4DEE2B80971704405";
     parse_action_with_signature!(input, DomainAction::ValidityTransfer(_));
 }
 
 #[test]
 fn parse_action_domain_data() {
-    let input = "DOMAIN-DATA example.o Xiler 3238D1FD6C25CFFA4E4DD585AB83BEE66DCEE8528860E4B3BAE8E681042A6F4645DFD70CD15A6DCBDD245C0CD4EC374C294B97CC076B1AC366669EB32DFCB505";
+    let input = "DOMAIN-DATA example.o Xiler null B94932262AA3BC6B30CCB8AFF24E7A2DAC8F923AF8988CE00959A934F4670AF4CAE77227F3E298C6AB9631AA2B7186DEDB25C7E837246C110FC3F45D67864203";
     parse_action_with_signature!(input, DomainAction::Data(_));
 }
 
@@ -75,4 +75,25 @@ fn parse_action_invalid() {
     let parsed = ActionParser::parse(input);
 
     assert!(parsed.is_err());
+}
+
+#[test]
+fn parse_multiple_actions() {
+    let input = r#"
+        DNS example.o 1. CNAME IN 30 example.com
+        DNS example.o 2. CNAME IN 30 example.com
+        DNS example.o 3. CNAME IN 30 example.com
+        DNS example.o 4. CNAME IN 30 example.com
+        6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0 273EBA5F5D71E3A9DB5F273EACA418974073263FA53474817DB12FC0FCF9DE6266499BC66A155E4A9EABC20ACBB244BF349BE5276430DC4C5DF4A8E89FABA106
+    "#;
+
+    let parsed = ActionParser::parse(input);
+    assert!(parsed.is_ok());
+
+    let parsed = parsed.unwrap();
+    assert_eq!(parsed.actions.len(), 4);
+
+    for action in parsed.actions {
+        assert!(matches!(action, DomainAction::Subdomain(_)));
+    }
 }
