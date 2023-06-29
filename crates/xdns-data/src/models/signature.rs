@@ -33,4 +33,26 @@ impl Signature {
 
         is_valid.is_ok() && is_valid.unwrap()
     }
+
+    /// Checks whether the signature is considered null.
+    ///
+    /// # Returns
+    ///
+    /// Whether the signature is null.
+    pub fn is_null(&self) -> bool {
+        self.signature.is_empty() || self.signature == "null"
+    }
+
+    /// Check if the signature is null, and if so, return None.
+    ///
+    /// # Returns
+    ///
+    /// The signature if it is not null, None otherwise.
+    pub fn with_null_evaluation(self) -> Option<Self> {
+        if self.is_null() {
+            None
+        } else {
+            Some(self)
+        }
+    }
 }

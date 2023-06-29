@@ -1,6 +1,6 @@
-pub use inscription::{
-    Inscription,
-    InscriptionParser,
+pub use action::{
+    DomainAction,
+    ActionParser,
 };
 
 pub mod data;
@@ -10,5 +10,5 @@ pub mod signature;
 pub mod subdomain;
 pub mod validity;
 pub mod validity_transfer;
-pub mod inscription;
+pub mod action;
 

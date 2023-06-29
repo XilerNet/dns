@@ -32,7 +32,7 @@ impl Parser for Signature {
         let last_line_parts: Vec<_> = last_line.split_whitespace().collect();
         let signature = last_line_parts.last().ok_or_else(|| format!("Invalid signature: {}", input))?;
 
-        if !signature.chars().all(|c| c.is_ascii_hexdigit()) {
+        if !signature.chars().all(|c| c.is_ascii_hexdigit()) && *signature != "null" {
             return Err(format!("Signature must consist of all hexadecimal characters: {}", input).into());
         }
 
