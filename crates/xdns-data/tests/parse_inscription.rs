@@ -1,5 +1,7 @@
 use xdns_data::parser::{Inscription, InscriptionParser};
 use xdns_data::traits::Parser;
+use xdns_data::models::credentials::Credentials;
+use xdns_data::models::algorithm::Algorithm;
 
 // private key for adding tests: 8BC8BE4BB432DCABFFD48501B72E2CE6AA8B285EFC6048F23818DF1E1EB47689
 const PUBLIC_KEY: &str = "C0AB4030035B8DDA5E9F5BF3881B8E21603714674AF8099602F31F142D80BCFE";
@@ -12,7 +14,9 @@ macro_rules! parse_inscription {
         let parsed = parsed.unwrap();
         assert_eq!(parsed.inscriptions.len(), 1);
         assert!(matches!(parsed.inscriptions[0], $pattern));
-        assert!(parsed.is_valid(PUBLIC_KEY));
+
+        let credentials = Credentials::new(Algorithm::Ed25519, PUBLIC_KEY.to_string());
+        assert!(parsed.signature.is_valid(credentials));
     }};
 }
 

@@ -17,12 +17,6 @@ pub struct InscriptionParser {
     pub signature: Signature,
 }
 
-impl InscriptionParser {
-    pub fn is_valid(&self, public_key: &str) -> bool {
-        todo!()
-    }
-}
-
 impl Parser for InscriptionParser {
     fn parse(input: &str) -> Result<Self> {
         todo!()
