@@ -1,5 +1,5 @@
 use xdns_data::models::{Data, Domain, SubDomain, Validity, ValidityTransfer};
-use crate::Repository;
+use crate::traits::Repository;
 
 pub struct SqliteRepository {
 
