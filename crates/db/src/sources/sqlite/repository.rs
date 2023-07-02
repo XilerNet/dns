@@ -32,6 +32,20 @@ impl SqliteRepository {
         let connection = Database::connect(opt).await.unwrap();
         Self { connection }
     }
+
+    fn parse_domain_model(domain_data: Option<domain::Model>) -> Result<Domain> {
+        if matches!(domain_data, None) {
+            return Err("Domain not found".into());
+        }
+
+        let domain_data = domain_data.unwrap();
+        let valid_from = domain_data.valid_from.parse::<u64>()?;
+
+        Ok(Domain {
+            name: domain_data.name,
+            valid_from: system_time_from_epoch_seconds(valid_from),
+        })
+    }
 }
 
 impl Repository for SqliteRepository {
@@ -45,18 +59,12 @@ impl Repository for SqliteRepository {
 
     async fn get_domain(&mut self, domain: &str) -> Result<Domain> {
         let domain_data = domain::Entity::find().filter(domain::Column::Name.eq(domain)).one(&self.connection).await?;
+        Self::parse_domain_model(domain_data)
+    }
 
-        if matches!(domain_data, None) {
-            return Err("Domain not found".into());
-        }
-
-        let domain_data = domain_data.unwrap();
-        let valid_from = domain_data.valid_from.parse::<u64>().unwrap();
-
-        Ok(Domain {
-            name: domain_data.name,
-            valid_from: system_time_from_epoch_seconds(valid_from),
-        })
+    async fn get_domain_by_inscription(&mut self, inscription: &str) -> Result<Domain> {
+        let domain_data = domain::Entity::find().filter(domain::Column::Inscription.eq(inscription)).one(&self.connection).await?;
+        Self::parse_domain_model(domain_data)
     }
 
     async fn add_domain(&mut self, inscription: &str, domain: &Domain) -> bool {
