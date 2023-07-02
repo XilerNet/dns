@@ -23,7 +23,10 @@ macro_rules! parse_action_with_signature {
     ($input:expr, $pattern:pat) => {{
         let parsed = parse_action!($input, $pattern);
         let credentials = Credentials::new(Algorithm::Ed25519, PUBLIC_KEY.to_string());
-        assert!(parsed.signature.expect("Signature should not be null?").is_valid(credentials));
+        assert!(parsed
+            .signature
+            .expect("Signature should not be null?")
+            .is_valid(credentials));
     }};
 }
 
@@ -47,7 +50,8 @@ fn parse_action_drop() {
 
 #[test]
 fn parse_action_validity() {
-    let input = "DOMAIN-VALIDITY example.o ed25519 null naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo null";
+    let input =
+        "DOMAIN-VALIDITY example.o ed25519 null naRG4n_qit1jAPO5F1zJ-J7wPa2Dy8K-GOxhCu-9DDo null";
     parse_action!(input, DomainAction::Validity(_));
 }
 

@@ -6,7 +6,6 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // Replace the sample below with your own migration scripts
         manager
             .create_table(
                 Table::create()
@@ -19,18 +18,20 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Domain::Name).string().not_null())
-                    .col(ColumnDef::new(Domain::ValidFrom).date().not_null())
+                    .col(ColumnDef::new(Domain::ValidFrom).timestamp().not_null())
                     .to_owned(),
             )
             .await?;
 
-        manager.create_index(
-            Index::create()
-                .table(Domain::Table)
-                .name("name")
-                .col(Domain::Name)
-                .to_owned(),
-        ).await
+        manager
+            .create_index(
+                Index::create()
+                    .table(Domain::Table)
+                    .name("idx_domain_name")
+                    .col(Domain::Name)
+                    .to_owned(),
+            )
+            .await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
@@ -40,7 +41,6 @@ impl MigrationTrait for Migration {
     }
 }
 
-/// Learn more at https://docs.rs/sea-query#iden
 #[derive(Iden)]
 enum Domain {
     Table,

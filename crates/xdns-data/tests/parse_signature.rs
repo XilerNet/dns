@@ -1,5 +1,5 @@
-use xdns_data::models::{Algorithm, Credentials};
 use xdns_data::models::signature::Signature;
+use xdns_data::models::{Algorithm, Credentials};
 use xdns_data::prelude::Parser;
 
 const PUBLIC_KEY: &'static str = "C0AB4030035B8DDA5E9F5BF3881B8E21603714674AF8099602F31F142D80BCFE";
@@ -26,7 +26,10 @@ fn parse_message_signature() {
 #[test]
 fn parse_message_signature_with_new_line() {
     let signature = "46227E3625F8786DF951A53E3EE4BF85084D1FEC0C4D6376644740281554DB4A1A67BB8F1EF699F8AAFE7151D42BDBF9EE92DAD8B84030F5CE6FE171D1C0370D";
-    let input = format!("Xiler - decentralising the centralised null {}\n", signature);
+    let input = format!(
+        "Xiler - decentralising the centralised null {}\n",
+        signature
+    );
 
     let parsed_signature = Signature::parse(&input);
     assert!(parsed_signature.is_ok());
@@ -135,7 +138,6 @@ fn parse_multiline_with_last_id() {
 
     assert_eq!(parsed_signature.last_id, Some("hello".to_string()));
 }
-
 
 #[test]
 fn test_single_line_with_last_id() {

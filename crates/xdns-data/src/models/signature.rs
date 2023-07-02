@@ -1,5 +1,5 @@
-use std::fmt::Debug;
 use crate::models::Credentials;
+use std::fmt::Debug;
 
 #[derive(Debug)]
 pub struct Signature {
@@ -27,13 +27,20 @@ impl Signature {
         }
 
         let signature = signature.unwrap();
-        let separator = if self.last_id_on_separate_line { "\n" } else { " " };
-        let signature_content = self.content.join("\n") + separator + self.last_id.as_ref().unwrap_or(&"null".to_string()).as_str();
+        let separator = if self.last_id_on_separate_line {
+            "\n"
+        } else {
+            " "
+        };
+        let signature_content = self.content.join("\n")
+            + separator
+            + self
+                .last_id
+                .as_ref()
+                .unwrap_or(&"null".to_string())
+                .as_str();
 
-        let is_valid = credentials.try_is_valid(
-            signature_content.as_bytes(),
-            &signature,
-        );
+        let is_valid = credentials.try_is_valid(signature_content.as_bytes(), &signature);
 
         is_valid.is_ok() && is_valid.unwrap()
     }

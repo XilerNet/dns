@@ -12,10 +12,12 @@ async fn add_and_get() {
         valid_from: system_time_from_epoch_seconds(chrono::Utc::now().timestamp() as u64),
     };
 
-    let result = db.add_domain(
-        "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0",
-        &domain,
-    ).await;
+    let result = db
+        .add_domain(
+            "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0",
+            &domain,
+        )
+        .await;
     assert!(result);
 
     let result = db.get_domain("example.o").await;

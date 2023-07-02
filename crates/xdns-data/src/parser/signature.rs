@@ -28,14 +28,24 @@ impl Parser for Signature {
             .map(str::trim)
             .filter(|&part| !part.is_empty());
 
-        let last_line = lines.next_back().ok_or_else(|| format!("Signature does not have content: {}", input))?;
+        let last_line = lines
+            .next_back()
+            .ok_or_else(|| format!("Signature does not have content: {}", input))?;
 
         let mut last_line_parts = last_line.split_whitespace();
-        let signature = last_line_parts.next_back().ok_or_else(|| format!("Signature is missing signature: {}", input))?;
-        let last_id = last_line_parts.next_back().ok_or_else(|| format!("Signature is missing the last id: {}", input))?;
+        let signature = last_line_parts
+            .next_back()
+            .ok_or_else(|| format!("Signature is missing signature: {}", input))?;
+        let last_id = last_line_parts
+            .next_back()
+            .ok_or_else(|| format!("Signature is missing the last id: {}", input))?;
 
         if !signature.chars().all(|c| c.is_ascii_hexdigit()) && signature != "null" {
-            return Err(format!("Signature must consist of all hexadecimal characters: {}", input).into());
+            return Err(format!(
+                "Signature must consist of all hexadecimal characters: {}",
+                input
+            )
+            .into());
         }
 
         let mut content: Vec<String> = lines.map(str::to_string).collect();

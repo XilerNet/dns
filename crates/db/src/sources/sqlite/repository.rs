@@ -1,14 +1,15 @@
-use std::time::SystemTime;
 use log::LevelFilter;
 use migration::{Migrator, MigratorTrait};
-use sea_orm::{ColumnTrait, ConnectOptions, Database, DatabaseConnection, EntityTrait, QueryFilter};
 use sea_orm::ActiveValue::Set;
+use sea_orm::{
+    ColumnTrait, ConnectOptions, Database, DatabaseConnection, EntityTrait, QueryFilter,
+};
+use std::time::SystemTime;
 
-use shared::common::Result;
-use xdns_data::models::Domain;
 use entity::domain;
-use migration::ColumnSpec::Default;
+use shared::common::Result;
 use shared::time::system_time_from_epoch_seconds;
+use xdns_data::models::Domain;
 
 use crate::traits::Repository;
 
@@ -19,13 +20,16 @@ pub struct SqliteRepository {
 }
 
 impl SqliteRepository {
+    /// Migrate the database to the latest version programmatically.
+    /// Ideally used for test purposes.
     pub async fn migrate(&self) {
         Migrator::up(&self.connection, None).await.unwrap();
     }
 
     async fn make_connection(with: &str) -> Self {
         let mut opt = ConnectOptions::new(with.to_owned());
-        opt.sqlx_logging(true).sqlx_logging_level(LevelFilter::Debug);
+        opt.sqlx_logging(true)
+            .sqlx_logging_level(LevelFilter::Debug);
         let connection = Database::connect(opt).await.unwrap();
         Self { connection }
     }
@@ -60,7 +64,11 @@ impl Repository for SqliteRepository {
     }
 
     async fn add_domain(&mut self, inscription: &str, domain: &Domain) -> bool {
-        let valid_from = domain.valid_from.duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
+        let valid_from = domain
+            .valid_from
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
 
         let domain = domain::ActiveModel {
             name: Set(domain.name.clone()),
