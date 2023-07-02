@@ -28,8 +28,7 @@ impl SqliteRepository {
 
     async fn make_connection(with: &str) -> Self {
         let mut opt = ConnectOptions::new(with.to_owned());
-        opt.sqlx_logging(true)
-            .sqlx_logging_level(LevelFilter::Debug);
+        opt.sqlx_logging(true).sqlx_logging_level(LevelFilter::Debug);
         let connection = Database::connect(opt).await.unwrap();
         Self { connection }
     }
@@ -45,10 +44,7 @@ impl Repository for SqliteRepository {
     }
 
     async fn get_domain(&mut self, domain: &str) -> Result<Domain> {
-        let domain_data = domain::Entity::find()
-            .filter(domain::Column::Name.eq(domain))
-            .one(&self.connection)
-            .await?;
+        let domain_data = domain::Entity::find().filter(domain::Column::Name.eq(domain)).one(&self.connection).await?;
 
         if matches!(domain_data, None) {
             return Err("Domain not found".into());
@@ -64,11 +60,7 @@ impl Repository for SqliteRepository {
     }
 
     async fn add_domain(&mut self, inscription: &str, domain: &Domain) -> bool {
-        let valid_from = domain
-            .valid_from
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
+        let valid_from = domain.valid_from.duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
 
         let domain = domain::ActiveModel {
             name: Set(domain.name.clone()),
@@ -79,5 +71,11 @@ impl Repository for SqliteRepository {
         let res = domain::Entity::insert(domain).exec(&self.connection).await;
 
         matches!(res, Ok(_))
+    }
+
+    async fn remove_domain(&self, domain: &str) -> bool {
+        let res = domain::Entity::delete_many().filter(domain::Column::Name.eq(domain)).exec(&self.connection).await;
+
+        matches!(res, Ok(_)) && res.unwrap().rows_affected != 0
     }
 }
