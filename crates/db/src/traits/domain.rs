@@ -1,22 +1,19 @@
+use shared::common::Result;
 use xdns_data::models::Domain;
-use crate::Repository;
+
+use crate::traits::Repository;
 
 pub trait DomainRepository {
-    fn get(&self, domain: &str) -> Vec<Domain>;
-    fn add(&self, domain: &Domain) -> bool;
-    fn remove(&self, domain: &Domain) -> bool;
+    async fn get(&mut self, domain: &str) -> Result<Domain>;
+    async fn add(&mut self, inscription: &str, domain: &Domain) -> bool;
 }
 
 impl<T: Repository> DomainRepository for T {
-    fn get(&self, domain: &str) -> Vec<Domain> {
-        self.get_domain(domain)
+    async fn get(&mut self, domain: &str) -> Result<Domain> {
+        self.get_domain(domain).await
     }
 
-    fn add(&self, domain: &Domain) -> bool {
-        self.add_domain(domain)
-    }
-
-    fn remove(&self, domain: &Domain) -> bool {
-        self.remove_domain(domain)
+    async fn add(&mut self, inscription: &str, domain: &Domain) -> bool {
+        self.add_domain(inscription, domain).await
     }
 }

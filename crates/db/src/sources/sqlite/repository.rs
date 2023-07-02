@@ -1,60 +1,75 @@
-use xdns_data::models::{Data, Domain, SubDomain, Validity, ValidityTransfer};
+use std::time::SystemTime;
+use log::LevelFilter;
+use migration::{Migrator, MigratorTrait};
+use sea_orm::{ColumnTrait, ConnectOptions, Database, DatabaseConnection, EntityTrait, QueryFilter};
+use sea_orm::ActiveValue::Set;
+
+use shared::common::Result;
+use xdns_data::models::Domain;
+use entity::domain;
+use migration::ColumnSpec::Default;
+use shared::time::system_time_from_epoch_seconds;
+
 use crate::traits::Repository;
 
-pub struct SqliteRepository {
+const FILENAME: &str = "sqlite:./xdns.db?mode=rwc";
 
+pub struct SqliteRepository {
+    pub connection: DatabaseConnection,
+}
+
+impl SqliteRepository {
+    pub async fn migrate(&self) {
+        Migrator::up(&self.connection, None).await.unwrap();
+    }
+
+    async fn make_connection(with: &str) -> Self {
+        let mut opt = ConnectOptions::new(with.to_owned());
+        opt.sqlx_logging(true).sqlx_logging_level(LevelFilter::Debug);
+        let connection = Database::connect(opt).await.unwrap();
+        Self { connection }
+    }
 }
 
 impl Repository for SqliteRepository {
-    fn get_domain(&self, domain: &str) -> Vec<Domain> {
-        todo!()
+    async fn new() -> Self {
+        Self::make_connection(FILENAME).await
     }
 
-    fn add_domain(&self, domain: &Domain) -> bool {
-        todo!()
+    async fn new_memory() -> Self {
+        Self::make_connection("sqlite::memory:").await
     }
 
-    fn remove_domain(&self, domain: &Domain) -> bool {
-        todo!()
+    async fn get_domain(&mut self, domain: &str) -> Result<Domain> {
+        let domain_data = domain::Entity::find()
+            .filter(domain::Column::Name.eq(domain))
+            .one(&self.connection)
+            .await?;
+
+        if matches!(domain_data, None) {
+            return Err("Domain not found".into());
+        }
+
+        let domain_data = domain_data.unwrap();
+        let valid_from = domain_data.valid_from.parse::<u64>().unwrap();
+
+        Ok(Domain {
+            name: domain_data.name,
+            valid_from: system_time_from_epoch_seconds(valid_from),
+        })
     }
 
-    fn get_subdomain(&self, domain: &str) -> Vec<SubDomain> {
-        todo!()
-    }
+    async fn add_domain(&mut self, inscription: &str, domain: &Domain) -> bool {
+        let valid_from = domain.valid_from.duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
 
-    fn add_subdomain(&self, subdomain: &SubDomain) -> bool {
-        todo!()
-    }
+        let domain = domain::ActiveModel {
+            name: Set(domain.name.clone()),
+            valid_from: Set(valid_from.to_string()),
+            inscription: Set(inscription.to_string()),
+        };
 
-    fn remove_subdomain(&self, subdomain: &SubDomain) -> bool {
-        todo!()
-    }
+        let res = domain::Entity::insert(domain).exec(&self.connection).await;
 
-    fn get_validity(&self, domain: &str) -> Vec<Validity> {
-        todo!()
-    }
-
-    fn add_validity(&self, validity: &Validity) -> bool {
-        todo!()
-    }
-
-    fn remove_validity(&self, validity: &Validity) -> bool {
-        todo!()
-    }
-
-    fn transfer_validity(&self, validity: &ValidityTransfer) -> bool {
-        todo!()
-    }
-
-    fn get_data(&self, domain: &str) -> Vec<Data> {
-        todo!()
-    }
-
-    fn add_data(&self, data: &Data) -> bool {
-        todo!()
-    }
-
-    fn remove_data(&self, data: &Data) -> bool {
-        todo!()
+        matches!(res, Ok(_))
     }
 }
