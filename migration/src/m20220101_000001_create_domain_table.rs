@@ -17,7 +17,12 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Domain::Name).string().not_null())
+                    .col(
+                        ColumnDef::new(Domain::Name)
+                            .string()
+                            .not_null()
+                            .unique_key(),
+                    )
                     .col(ColumnDef::new(Domain::ValidFrom).timestamp().not_null())
                     .to_owned(),
             )

@@ -68,3 +68,54 @@ impl TryFrom<&str> for Class {
         }
     }
 }
+
+impl Into<String> for Type {
+    /// Converts a [`Type`](Type) to a string.
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - The type to convert.
+    ///
+    /// # Returns
+    ///
+    /// The string.
+    fn into(self) -> String {
+        self.to_string()
+    }
+}
+
+impl Into<String> for Class {
+    /// Converts a [`Class`](Class) to a string.
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - The class to convert.
+    ///
+    /// # Returns
+    ///
+    /// The string.
+    fn into(self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToString for Type {
+    fn to_string(&self) -> String {
+        match self {
+            Self::A => "A".to_string(),
+            Self::NS => "NS".to_string(),
+            Self::CNAME => "CNAME".to_string(),
+            Self::MX => "MX".to_string(),
+            Self::AAAA => "AAAA".to_string(),
+        }
+    }
+}
+
+impl ToString for Class {
+    fn to_string(&self) -> String {
+        match self {
+            Self::IN => "IN".to_string(),
+            Self::ANY => "ANY".to_string(),
+        }
+    }
+}

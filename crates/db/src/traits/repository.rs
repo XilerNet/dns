@@ -1,5 +1,5 @@
 use shared::common::Result;
-use xdns_data::models::Domain;
+use xdns_data::models::{Domain, SubDomain};
 
 pub trait Repository {
     // TODO: Resolve warning related to self return
@@ -50,4 +50,73 @@ pub trait Repository {
     ///
     /// * `bool` - Whether the domain was removed.
     async fn remove_domain(&self, domain: &str) -> bool;
+
+    /// Remove an existing domain from the repository by inscription id.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the domain to remove.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the domain was removed.
+    async fn remove_domain_by_inscription(&self, inscription: &str) -> bool;
+
+    /// Add a new subdomain to the repository.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the domain.
+    /// * `subdomain` - The subdomain to add.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the subdomain was added.
+    async fn add_subdomain(&self, inscription: &str, subdomain: SubDomain) -> bool;
+
+    /// Get all existing subdomains from the repository that match the given domain.
+    ///
+    /// # Arguments
+    ///
+    /// * `domain` - The domain of the subdomain.
+    /// * `subdomain` - The subdomain to get.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Vec<SubDomain>>` - The subdomains if they exist.
+    async fn get_subdomain(&self, domain: &str, subdomain: &str) -> Result<Vec<SubDomain>>;
+
+    /// Get an existing subdomain from the repository by inscription id.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the subdomain to get.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<SubDomain>` - The subdomain if it exists.
+    async fn get_subdomain_by_inscription(&self, inscription: &str) -> Result<SubDomain>;
+
+    /// Remove an existing subdomain from the repository.
+    /// This will remove all subdomains that match the given domain and subdomain.
+    ///
+    /// # Arguments
+    ///
+    /// * `domain` - The domain of the subdomain.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the subdomain was removed.
+    async fn remove_subdomains(&self, domain: &str, subdomain: &str) -> bool;
+
+    /// Remove an existing subdomain from the repository by inscription id.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the subdomain to remove.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the subdomain was removed.
+    async fn remove_subdomain(&self, inscription: &str) -> bool;
 }

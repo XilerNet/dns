@@ -11,29 +11,33 @@ impl MigrationTrait for Migration {
         // pub algorithm: String,
         // pub public_key: String,
 
-        manager.create_table(
-            Table::create()
-                .table(Validity::Table)
-                .if_not_exists()
-                .col(
-                    ColumnDef::new(Validity::Inscription)
-                        .string()
-                        .not_null()
-                        .primary_key(),
-                )
-                .col(ColumnDef::new(Validity::Domain).string().not_null())
-                .col(ColumnDef::new(Validity::Algorithm).string().not_null())
-                .col(ColumnDef::new(Validity::PublicKey).string().not_null())
-                .to_owned(),
-        ).await?;
+        manager
+            .create_table(
+                Table::create()
+                    .table(Validity::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(Validity::Inscription)
+                            .string()
+                            .not_null()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(Validity::Domain).string().not_null())
+                    .col(ColumnDef::new(Validity::Algorithm).string().not_null())
+                    .col(ColumnDef::new(Validity::PublicKey).string().not_null())
+                    .to_owned(),
+            )
+            .await?;
 
-        manager.create_index(
-            Index::create()
-                .table(Validity::Table)
-                .name("idx_validity_domain")
-                .col(Validity::Domain)
-                .to_owned(),
-        ).await
+        manager
+            .create_index(
+                Index::create()
+                    .table(Validity::Table)
+                    .name("idx_validity_domain")
+                    .col(Validity::Domain)
+                    .to_owned(),
+            )
+            .await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
