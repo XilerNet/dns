@@ -1,15 +1,17 @@
 extern crate dns_utils;
 extern crate shared;
 
-use std::net::UdpSocket;
-
+use std::sync::Arc;
+use tokio::net::UdpSocket;
+use async_recursion::async_recursion;
 use dns_utils::prelude::*;
 use shared::prelude::*;
 
 const SERVER: (&str, u16) = ("1.1.1.1", 53);
 const PORT: u16 = 53;
 
-fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<DnsPacket> {
+#[async_recursion]
+async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<DnsPacket> {
     println!("Looking up {:?} {:?}", qname, qtype);
 
     let mut packet = match packet {
@@ -51,7 +53,7 @@ fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<Dn
                     // TODO: Prevent clone usage here
                     packet.original_questions = Some(packet.questions);
                     packet.questions = vec![DnsQuestion::new(host.to_string(), qtype)];
-                    lookup(host, qtype, Some(packet.clone()))
+                    lookup(host, qtype, Some(packet.clone())).await
                 } else {
                     Ok(packet.make_returnable())
                 };
@@ -65,11 +67,11 @@ fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<Dn
         let mut req_buffer = BytePacketBuffer::new();
         packet.write(&mut req_buffer)?;
 
-        let socket = UdpSocket::bind(("0.0.0.0", 43210))?;
-        socket.send_to(&req_buffer.buf[0..req_buffer.pos()], SERVER)?;
+        let socket = UdpSocket::bind(("0.0.0.0", 43210)).await?;
+        socket.send_to(&req_buffer.buf[0..req_buffer.pos()], SERVER).await?;
 
         let mut res_buffer = BytePacketBuffer::new();
-        socket.recv_from(&mut res_buffer.buf)?;
+        socket.recv_from(&mut res_buffer.buf).await?;
 
         let res_packet = DnsPacket::from_buffer(&mut res_buffer);
 
@@ -86,7 +88,7 @@ fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<Dn
 }
 
 /// Handle a single incoming packet
-fn handle_query(socket: &UdpSocket) -> Result<()> {
+async fn handle_query(socket: &UdpSocket) -> Result<()> {
     // With a socket ready, we can go ahead and read a packet. This will
     // block until one is received.
     let mut req_buffer = BytePacketBuffer::new();
@@ -95,7 +97,7 @@ fn handle_query(socket: &UdpSocket) -> Result<()> {
     // and return the length of the data read as well as the source address.
     // We're not interested in the length, but we need to keep track of the
     // source in order to send our reply later on.
-    let (_, src) = socket.recv_from(&mut req_buffer.buf)?;
+    let (_, src) = socket.recv_from(&mut req_buffer.buf).await?;
 
     // Next, `DnsPacket::from_buffer` is used to parse the raw bytes into
     // a `DnsPacket`.
@@ -117,7 +119,7 @@ fn handle_query(socket: &UdpSocket) -> Result<()> {
         // fail, in which case the `SERVFAIL` response code is set to indicate
         // as much to the client. If rather everything goes as planned, the
         // question and response records as copied into our response packet.
-        if let Ok(result) = lookup(&question.name, question.qtype, None) {
+        if let Ok(result) = lookup(&question.name, question.qtype, None).await {
             packet.questions.push(question);
             packet.header.rescode = result.header.rescode;
 
@@ -150,19 +152,23 @@ fn handle_query(socket: &UdpSocket) -> Result<()> {
     let len = res_buffer.pos();
     let data = res_buffer.get_range(0, len)?;
 
-    socket.send_to(data, src)?;
+    socket.send_to(data, src).await?;
 
     Ok(())
 }
 
-fn main() -> Result<()> {
-    let socket = UdpSocket::bind(("127.0.0.1", PORT))?;
-    println!("DNS proxy listening on port {}", PORT);
+#[tokio::main]
+async fn main() -> Result<()> {
+    let socket = Arc::new(UdpSocket::bind(("127.0.0.1", PORT)).await?);
+    println!("XDNS listening on port {}", PORT);
 
     loop {
-        match handle_query(&socket) {
-            Ok(_) => {}
-            Err(e) => eprintln!("An error occurred: {}", e),
-        }
+        let socket = socket.clone();
+        tokio::spawn(async move {
+            match handle_query(&socket).await {
+                Ok(_) => {}
+                Err(e) => eprintln!("An error occurred: {}", e),
+            }
+        });
     }
 }

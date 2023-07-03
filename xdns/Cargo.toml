@@ -2,7 +2,10 @@
 name = "xdns"
 version = "0.0.1"
 description = "🌐🔗 A decentralized DNS server built on Bitcoin ordinals, adhering to the Xiler specification."
+edition = "2021"
 
 [dependencies]
+async-recursion = "1.0.4"
 dns_utils = { path = "../crates/dns-utils" }
 shared = { path = "../crates/shared" }
+tokio = { version = "1.29.1", features = ["net", "macros", "rt-multi-thread", "time"] }
