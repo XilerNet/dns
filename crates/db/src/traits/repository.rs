@@ -202,7 +202,7 @@ pub trait Repository {
         validity: ValidityTransfer,
     ) -> bool;
 
-    // TODO: Implement data
+    // TODO: Implement data db columns
     // async fn add_data(&self, inscription: &str, data: Data) -> bool;
     // async fn get_data(&self, domain: &str) -> Result<Vec<Data>>;
     // async fn get_data_by_inscription(&self, inscription: &str) -> Result<Data>;
