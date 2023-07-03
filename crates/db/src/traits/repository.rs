@@ -1,5 +1,5 @@
 use shared::common::Result;
-use xdns_data::models::{Domain, SubDomain};
+use xdns_data::models::{Data, Domain, SubDomain, Validity, ValidityTransfer};
 
 pub trait Repository {
     // TODO: Resolve warning related to self return
@@ -119,4 +119,92 @@ pub trait Repository {
     ///
     /// * `bool` - Whether the subdomain was removed.
     async fn remove_subdomain(&self, inscription: &str) -> bool;
+
+    /// Add a new validity to the repository.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the domain.
+    /// * `validity` - The validity to add.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the validity was added.
+    async fn add_validity(&self, inscription: &str, validity: Validity) -> bool;
+
+    /// Get a validity from the repository by its domain.
+    ///
+    /// # Arguments
+    ///
+    /// * `domain` - The domain of the validity.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Validity>` - The validity if it exists.
+    async fn get_validity(&self, domain: &str) -> Result<Validity>;
+
+    /// Get a validity from the repository by its inscription id.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the validity.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Validity>` - The validity if it exists.
+    async fn get_validity_by_inscription(&self, inscription: &str) -> Result<Validity>;
+
+    /// Remove a validity from the repository by its domain.
+    ///
+    /// # Arguments
+    ///
+    /// * `domain` - The domain of the validity.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the validity was removed.
+    async fn remove_validity(&self, domain: &str) -> bool;
+
+    /// Remove a validity from the repository by its inscription id.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the validity.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the validity was removed.
+    async fn remove_validity_by_inscription(&self, inscription: &str) -> bool;
+
+    /// Update a validity in the repository.
+    ///
+    /// # Arguments
+    ///
+    /// * `validity` - The validity to update.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the validity was updated.
+    async fn update_validity(&self, validity: ValidityTransfer) -> bool;
+
+    /// Update a validity in the repository by its inscription id.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the validity.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the validity was updated.
+    async fn update_validity_by_inscription(
+        &self,
+        inscription: &str,
+        validity: ValidityTransfer,
+    ) -> bool;
+
+    // TODO: Implement data
+    // async fn add_data(&self, inscription: &str, data: Data) -> bool;
+    // async fn get_data(&self, domain: &str) -> Result<Vec<Data>>;
+    // async fn get_data_by_inscription(&self, inscription: &str) -> Result<Data>;
+    // async fn remove_data(&self, inscription: &str) -> bool;
 }

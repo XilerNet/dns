@@ -59,6 +59,23 @@ impl TryFrom<&str> for Algorithm {
     }
 }
 
+impl TryFrom<String> for Algorithm {
+    type Error = Error;
+
+    /// Tries to convert a string to an [`Algorithm`](Algorithm).
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - The string to convert.
+    ///
+    /// # Returns
+    ///
+    /// The algorithm.
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Algorithm::try_from(value.as_str())
+    }
+}
+
 impl Into<&str> for Algorithm {
     /// Returns the name of the algorithm.
     fn into(self) -> &'static str {

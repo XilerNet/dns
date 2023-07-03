@@ -6,11 +6,6 @@ pub struct Migration;
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        // pub inscription: String,
-        // pub domain: String,
-        // pub algorithm: String,
-        // pub public_key: String,
-
         manager
             .create_table(
                 Table::create()
@@ -22,7 +17,12 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Validity::Domain).string().not_null())
+                    .col(
+                        ColumnDef::new(Validity::Domain)
+                            .string()
+                            .not_null()
+                            .unique_key(),
+                    )
                     .col(ColumnDef::new(Validity::Algorithm).string().not_null())
                     .col(ColumnDef::new(Validity::PublicKey).string().not_null())
                     .to_owned(),

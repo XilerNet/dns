@@ -11,7 +11,7 @@ pub struct Model {
     pub subdomain: String,
     pub rtype: String,
     pub class: String,
-    pub ttl: u32,
+    pub ttl: i32,
     pub rdata: String,
 }
 
