@@ -4,7 +4,7 @@ use xdns_data::models::Domain;
 
 #[tokio::test]
 async fn add_and_get() {
-    let mut db = db::Repository::new_memory().await;
+    let db = db::Repository::new_memory().await;
     db.migrate().await;
 
     let domain = Domain {
@@ -21,7 +21,6 @@ async fn add_and_get() {
     assert!(result);
 
     let result = db.get_domain("example.o").await;
-    println!("{:?}", result);
     assert!(result.is_ok());
     let result = result.unwrap();
     assert_eq!(result.name, "example.o");
@@ -31,7 +30,7 @@ async fn add_and_get() {
 async fn get_by_inscription_id() {
     let inscription_id = "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0";
     let valid_from = system_time_from_epoch_seconds(chrono::Utc::now().timestamp() as u64);
-    let mut db = db::Repository::new_memory().await;
+    let db = db::Repository::new_memory().await;
     db.migrate().await;
 
     let domain = Domain {
@@ -59,17 +58,16 @@ async fn get_by_inscription_id() {
 
 #[tokio::test]
 async fn get_non_existent() {
-    let mut db = db::Repository::new_memory().await;
+    let db = db::Repository::new_memory().await;
     db.migrate().await;
 
     let result = db.get_domain("example.o").await;
-    println!("{:?}", result);
     assert!(result.is_err());
 }
 
 #[tokio::test]
 async fn remove() {
-    let mut db = db::Repository::new_memory().await;
+    let db = db::Repository::new_memory().await;
     db.migrate().await;
 
     let domain = Domain {
@@ -94,7 +92,7 @@ async fn remove() {
 #[tokio::test]
 async fn remove_by_inscription() {
     let inscription_id = "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0";
-    let mut db = db::Repository::new_memory().await;
+    let db = db::Repository::new_memory().await;
     db.migrate().await;
 
     let domain = Domain {

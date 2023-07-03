@@ -8,7 +8,7 @@ async fn add_subdomain() {
     let inscription_id = "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0";
     let inscription_id_2 = "26482871f33f1051f450f2da9af275794c0b5f1c61ebf35e4467fb42c2813403i0";
     let valid_from = system_time_from_epoch_seconds(chrono::Utc::now().timestamp() as u64);
-    let mut db = db::Repository::new_memory().await;
+    let db = db::Repository::new_memory().await;
     db.migrate().await;
 
     let domain = Domain {
@@ -42,7 +42,7 @@ async fn get_subdomain() {
     let inscription_id_2 = "26482871f33f1051f450f2da9af275794c0b5f1c61ebf35e4467fb42c2813403i0";
     let inscription_id_3 = "c17dd02a7f216f4b438ab1a303f518abfc4d4d01dcff8f023cf87c4403cb54cai0";
     let valid_from = system_time_from_epoch_seconds(chrono::Utc::now().timestamp() as u64);
-    let mut db = db::Repository::new_memory().await;
+    let db = db::Repository::new_memory().await;
     db.migrate().await;
 
     let domain = Domain {
@@ -109,7 +109,7 @@ async fn get_subdomain_by_inscription() {
     let inscription_id = "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0";
     let inscription_id_2 = "26482871f33f1051f450f2da9af275794c0b5f1c61ebf35e4467fb42c2813403i0";
     let valid_from = system_time_from_epoch_seconds(chrono::Utc::now().timestamp() as u64);
-    let mut db = db::Repository::new_memory().await;
+    let db = db::Repository::new_memory().await;
     db.migrate().await;
 
     let domain = Domain {
@@ -149,7 +149,7 @@ async fn remove_subdomains() {
     let inscription_id_2 = "26482871f33f1051f450f2da9af275794c0b5f1c61ebf35e4467fb42c2813403i0";
     let inscription_id_3 = "c17dd02a7f216f4b438ab1a303f518abfc4d4d01dcff8f023cf87c4403cb54cai0";
     let valid_from = system_time_from_epoch_seconds(chrono::Utc::now().timestamp() as u64);
-    let mut db = db::Repository::new_memory().await;
+    let db = db::Repository::new_memory().await;
     db.migrate().await;
 
     let domain = Domain {
@@ -200,7 +200,7 @@ async fn remove_subdomain() {
     let inscription_id = "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0";
     let inscription_id_2 = "26482871f33f1051f450f2da9af275794c0b5f1c61ebf35e4467fb42c2813403i0";
     let valid_from = system_time_from_epoch_seconds(chrono::Utc::now().timestamp() as u64);
-    let mut db = db::Repository::new_memory().await;
+    let db = db::Repository::new_memory().await;
     db.migrate().await;
 
     let domain = Domain {

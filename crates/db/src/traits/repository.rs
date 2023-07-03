@@ -15,7 +15,7 @@ pub trait Repository {
     /// # Returns
     ///
     /// * `Result<Domain>` - The domain if it exists.
-    async fn get_domain(&mut self, domain: &str) -> Result<Domain>;
+    async fn get_domain(&self, domain: &str) -> Result<Domain>;
 
     /// Get an existing domain from the repository by inscription id.
     ///
@@ -26,7 +26,7 @@ pub trait Repository {
     /// # Returns
     ///
     /// * `Result<Domain>` - The domain if it exists.
-    async fn get_domain_by_inscription(&mut self, inscription: &str) -> Result<Domain>;
+    async fn get_domain_by_inscription(&self, inscription: &str) -> Result<Domain>;
 
     /// Add a new domain to the repository.
     ///
@@ -38,7 +38,7 @@ pub trait Repository {
     /// # Returns
     ///
     /// * `bool` - Whether the domain was added.
-    async fn add_domain(&mut self, inscription: &str, domain: &Domain) -> bool;
+    async fn add_domain(&self, inscription: &str, domain: &Domain) -> bool;
 
     /// Remove an existing domain from the repository.
     ///
@@ -202,9 +202,60 @@ pub trait Repository {
         validity: ValidityTransfer,
     ) -> bool;
 
-    // TODO: Implement data db columns
-    // async fn add_data(&self, inscription: &str, data: Data) -> bool;
-    // async fn get_data(&self, domain: &str) -> Result<Vec<Data>>;
-    // async fn get_data_by_inscription(&self, inscription: &str) -> Result<Data>;
-    // async fn remove_data(&self, inscription: &str) -> bool;
+    /// Add a new data to the repository.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the domain.
+    /// * `data` - The data to add.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the data was added.
+    async fn add_data(&self, inscription: &str, data: Data) -> bool;
+
+    /// Get all existing data from the repository that match the given domain.
+    ///
+    /// # Arguments
+    ///
+    /// * `domain` - The domain of the data.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Vec<Data>>` - The data if they exist. (can be empty)
+    async fn get_data(&self, domain: &str) -> Result<Vec<Data>>;
+
+    /// Get an existing data from the repository by inscription id.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the data to get.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<Data>` - The data if it exists.
+    async fn get_data_by_inscription(&self, inscription: &str) -> Result<Data>;
+
+    /// Remove an existing data from the repository.
+    /// This will remove all data that match the given domain.
+    ///
+    /// # Arguments
+    ///
+    /// * `domain` - The domain of the data.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the data was removed.
+    async fn remove_data(&self, domain: &str) -> bool;
+
+    /// Remove an existing data from the repository by inscription id.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the data to remove.
+    ///
+    /// # Returns
+    ///
+    /// * `bool` - Whether the data was removed.
+    async fn remove_data_by_inscription(&self, inscription: &str) -> bool;
 }

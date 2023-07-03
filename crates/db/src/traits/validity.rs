@@ -1,5 +1,5 @@
 use shared::common::Result;
-use xdns_data::models::{Domain, Validity, ValidityTransfer};
+use xdns_data::models::{Validity, ValidityTransfer};
 
 use crate::traits::Repository;
 
@@ -10,11 +10,7 @@ pub trait ValidityRepository {
     async fn remove(&self, domain: &str) -> bool;
     async fn remove_by_inscription(&self, inscription: &str) -> bool;
     async fn update(&self, validity: ValidityTransfer) -> bool;
-    async fn update_by_inscription(
-        &self,
-        inscription: &str,
-        validity: ValidityTransfer,
-    ) -> bool;
+    async fn update_by_inscription(&self, inscription: &str, validity: ValidityTransfer) -> bool;
 }
 
 impl<T: Repository> ValidityRepository for T {

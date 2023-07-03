@@ -6,12 +6,12 @@ use sea_orm::{
 };
 use std::time::SystemTime;
 
-use entity::subdomain;
+use entity::{data, subdomain};
 use entity::{domain, validity};
 use shared::common::Result;
 use shared::time::system_time_from_epoch_seconds;
 use xdns_data::models::subdomain::{Class as SubDomainClass, Type as SubDomainType};
-use xdns_data::models::{Credentials, Domain, SubDomain, Validity, ValidityTransfer};
+use xdns_data::models::{Credentials, Data, Domain, SubDomain, Validity, ValidityTransfer};
 
 use crate::traits::Repository;
 
@@ -65,10 +65,7 @@ impl SqliteRepository {
 
         Ok(Validity {
             domain: validity.domain.to_string(),
-            credentials: Credentials::new(
-                validity.algorithm.try_into()?,
-                validity.public_key.to_string(),
-            ),
+            credentials: Credentials::new(validity.algorithm.try_into()?, validity.public_key),
         })
     }
 
@@ -104,21 +101,21 @@ impl Repository for SqliteRepository {
         Self::make_connection("sqlite::memory:").await
     }
 
-    async fn get_domain(&mut self, domain: &str) -> Result<Domain> {
+    async fn get_domain(&self, domain: &str) -> Result<Domain> {
         let domain_data = self
             .get_first_entity_by(domain::Entity, domain::Column::Name.eq(domain))
             .await?;
         Self::parse_domain_model(domain_data)
     }
 
-    async fn get_domain_by_inscription(&mut self, inscription: &str) -> Result<Domain> {
+    async fn get_domain_by_inscription(&self, inscription: &str) -> Result<Domain> {
         let domain_data = self
             .get_first_entity_by(domain::Entity, domain::Column::Inscription.eq(inscription))
             .await?;
         Self::parse_domain_model(domain_data)
     }
 
-    async fn add_domain(&mut self, inscription: &str, domain: &Domain) -> bool {
+    async fn add_domain(&self, inscription: &str, domain: &Domain) -> bool {
         let valid_from = domain
             .valid_from
             .duration_since(SystemTime::UNIX_EPOCH)
@@ -157,12 +154,12 @@ impl Repository for SqliteRepository {
     async fn add_subdomain(&self, inscription: &str, subdomain: SubDomain) -> bool {
         let subdomain = subdomain::ActiveModel {
             inscription: Set(inscription.to_string()),
-            domain: Set(subdomain.domain.to_string()),
-            subdomain: Set(subdomain.subdomain.to_string()),
+            domain: Set(subdomain.domain),
+            subdomain: Set(subdomain.subdomain),
             rtype: Set(subdomain.rtype.to_string()),
             class: Set(subdomain.class.to_string()),
             ttl: Set(subdomain.ttl as i32),
-            rdata: Set(subdomain.rdata.to_string()),
+            rdata: Set(subdomain.rdata),
         };
 
         let res = subdomain::Entity::insert(subdomain)
@@ -183,15 +180,15 @@ impl Repository for SqliteRepository {
             .await?;
 
         subdomains
-            .iter()
+            .into_iter()
             .map(|domain| {
                 Ok(SubDomain {
-                    domain: domain.domain.to_string(),
-                    subdomain: domain.subdomain.to_string(),
+                    domain: domain.domain,
+                    subdomain: domain.subdomain,
                     rtype: SubDomainType::try_from(&domain.rtype as &str)?,
                     class: SubDomainClass::try_from(&domain.class as &str)?,
                     ttl: domain.ttl as u32,
-                    rdata: domain.rdata.to_string(),
+                    rdata: domain.rdata,
                 })
             })
             .collect::<Result<Vec<SubDomain>>>()
@@ -213,12 +210,12 @@ impl Repository for SqliteRepository {
 
         // TODO: Refactor to prevent code duplication
         Ok(SubDomain {
-            domain: domain.domain.to_string(),
-            subdomain: domain.subdomain.to_string(),
+            domain: domain.domain,
+            subdomain: domain.subdomain,
             rtype: SubDomainType::try_from(&domain.rtype as &str)?,
             class: SubDomainClass::try_from(&domain.class as &str)?,
             ttl: domain.ttl as u32,
-            rdata: domain.rdata.to_string(),
+            rdata: domain.rdata,
         })
     }
 
@@ -247,9 +244,9 @@ impl Repository for SqliteRepository {
     async fn add_validity(&self, inscription: &str, validity: Validity) -> bool {
         let validity = validity::ActiveModel {
             inscription: Set(inscription.to_string()),
-            domain: Set(validity.domain.to_string()),
-            algorithm: Set(validity.credentials.algorithm.to_string()),
-            public_key: Set(validity.credentials.public_key.to_string()),
+            domain: Set(validity.domain),
+            algorithm: Set(validity.credentials.algorithm.into()),
+            public_key: Set(validity.credentials.public_key.into()),
         };
 
         let res = validity::Entity::insert(validity)
@@ -311,9 +308,9 @@ impl Repository for SqliteRepository {
         if let Some(new_credentials) = validity.new_credentials {
             let raw = validity::ActiveModel {
                 inscription: Set(inscription.to_string()),
-                domain: Set(validity.domain.to_string()),
-                algorithm: Set(new_credentials.algorithm.to_string()),
-                public_key: Set(new_credentials.public_key.to_string()),
+                domain: Set(validity.domain),
+                algorithm: Set(new_credentials.algorithm.into()),
+                public_key: Set(new_credentials.public_key),
             };
 
             let res = validity::Entity::update(raw)
@@ -325,5 +322,67 @@ impl Repository for SqliteRepository {
         }
 
         self.remove_validity_by_inscription(inscription).await
+    }
+
+    async fn add_data(&self, inscription: &str, data: Data) -> bool {
+        let data = data::ActiveModel {
+            inscription: Set(inscription.to_string()),
+            domain: Set(data.domain),
+            data: Set(data.data),
+        };
+
+        let res = data::Entity::insert(data).exec(&self.connection).await;
+
+        matches!(res, Ok(_))
+    }
+
+    async fn get_data(&self, domain: &str) -> Result<Vec<Data>> {
+        let data = data::Entity::find()
+            .filter(data::Column::Domain.eq(domain))
+            .all(&self.connection)
+            .await?;
+
+        data.into_iter()
+            .map(|data| {
+                Ok(Data {
+                    domain: data.domain,
+                    data: data.data,
+                })
+            })
+            .collect::<Result<Vec<Data>>>()
+    }
+
+    async fn get_data_by_inscription(&self, inscription: &str) -> Result<Data> {
+        let data = self
+            .get_first_entity_by(data::Entity, data::Column::Inscription.eq(inscription))
+            .await?;
+
+        if data.is_none() {
+            return Err("Data not found".into());
+        }
+
+        let data = data.unwrap();
+
+        Ok(Data {
+            domain: data.domain,
+            data: data.data,
+        })
+    }
+
+    async fn remove_data(&self, domain: &str) -> bool {
+        let res = data::Entity::delete_many()
+            .filter(data::Column::Domain.eq(domain))
+            .exec(&self.connection)
+            .await;
+
+        matches!(res, Ok(_)) && res.unwrap().rows_affected != 0
+    }
+
+    async fn remove_data_by_inscription(&self, inscription: &str) -> bool {
+        let res = data::Entity::delete_by_id(inscription)
+            .exec(&self.connection)
+            .await;
+
+        matches!(res, Ok(_)) && res.unwrap().rows_affected != 0
     }
 }
