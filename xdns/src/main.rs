@@ -1,11 +1,18 @@
+mod utils;
+
+extern crate db;
 extern crate dns_utils;
 extern crate shared;
 
-use std::sync::Arc;
-use tokio::net::UdpSocket;
+use crate::utils::subdomain_cast::SubDomainCast;
 use async_recursion::async_recursion;
+use db::{Repository, XDNSRepository};
 use dns_utils::prelude::*;
 use shared::prelude::*;
+use std::net::SocketAddr;
+use std::sync::Arc;
+use tokio::net::UdpSocket;
+use xdns_data::prelude::Type;
 
 const SERVER: (&str, u16) = ("1.1.1.1", 53);
 const PORT: u16 = 53;
@@ -31,34 +38,56 @@ async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Res
     };
 
     if qname.ends_with(".o") {
-        // TODO: Get the packet from the db
-        if qname == "xiler.o" {
-            let mut packet = DnsPacket {
-                header: packet.header,
-                questions: packet.questions,
-                original_questions: None,
-                answers: vec![DnsRecord::CNAME {
-                    domain: qname.to_string(),
-                    host: "xiler.net".to_string(),
-                    ttl: 64,
-                }],
-                authorities: vec![],
-                resources: vec![],
-            };
-
-            if let Some(record) = packet.answers.last() {
-                return if record.type_of() == qtype {
-                    Ok(packet.make_returnable())
-                } else if let Some(host) = record.get_host() {
-                    // TODO: Prevent clone usage here
-                    packet.original_questions = Some(packet.questions);
-                    packet.questions = vec![DnsQuestion::new(host.to_string(), qtype)];
-                    lookup(host, qtype, Some(packet.clone())).await
-                } else {
-                    Ok(packet.make_returnable())
-                };
+        let db = Repository::new().await;
+        let segments = qname.split(".").collect::<Vec<&str>>();
+        let domain = segments[segments.len() - 2..].join(".");
+        let subdomain = segments[..segments.len() - 2].join(".");
+        println!("Looking up {:?} {:?}", domain, subdomain);
+        let subdomains = match db.get_subdomain(&domain, &subdomain).await {
+            Ok(subdomains) => subdomains,
+            Err(e) => {
+                println!("{:?}", e);
+                return Ok(packet);
             }
+        };
 
+        if subdomains.len() > 0 {
+            let answers: Vec<DnsRecord> = subdomains
+                .into_iter()
+                .map(SubDomainCast::from)
+                .map(|s| s.try_into())
+                .collect::<Result<Vec<DnsRecord>>>()?;
+
+            packet.answers = answers;
+
+            if qtype != QueryType::SUB(Type::CNAME) {
+                let mut cname_resolves = Vec::new();
+
+                for record in packet.answers.iter() {
+                    if record.type_of() == QueryType::SUB(Type::CNAME) {
+                        let mut packet = packet.clone();
+                        packet.questions = vec![DnsQuestion::new(
+                            record.get_host().unwrap().to_string(),
+                            qtype
+                        )];
+                        packet.answers = Vec::new();
+                        let res = lookup(
+                            record.get_host().unwrap(),
+                            qtype,
+                            Some(packet.clone()),
+                        )
+                        .await;
+
+                        if let Ok(res) = res {
+                            cname_resolves.push(res);
+                        }
+                    }
+                }
+
+                for cname_resolve in cname_resolves {
+                    packet.answers.extend(cname_resolve.answers);
+                }
+            }
             return Ok(packet.make_returnable());
         }
 
@@ -68,7 +97,9 @@ async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Res
         packet.write(&mut req_buffer)?;
 
         let socket = UdpSocket::bind(("0.0.0.0", 43210)).await?;
-        socket.send_to(&req_buffer.buf[0..req_buffer.pos()], SERVER).await?;
+        socket
+            .send_to(&req_buffer.buf[0..req_buffer.pos()], SERVER)
+            .await?;
 
         let mut res_buffer = BytePacketBuffer::new();
         socket.recv_from(&mut res_buffer.buf).await?;
@@ -87,18 +118,11 @@ async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Res
     }
 }
 
-/// Handle a single incoming packet
-async fn handle_query(socket: &UdpSocket) -> Result<()> {
-    // With a socket ready, we can go ahead and read a packet. This will
-    // block until one is received.
-    let mut req_buffer = BytePacketBuffer::new();
-
-    // The `recv_from` function will write the data into the provided buffer,
-    // and return the length of the data read as well as the source address.
-    // We're not interested in the length, but we need to keep track of the
-    // source in order to send our reply later on.
-    let (_, src) = socket.recv_from(&mut req_buffer.buf).await?;
-
+async fn handle_request(
+    socket: Arc<UdpSocket>,
+    mut req_buffer: BytePacketBuffer,
+    src: SocketAddr,
+) -> Result<()> {
     // Next, `DnsPacket::from_buffer` is used to parse the raw bytes into
     // a `DnsPacket`.
     let mut request = DnsPacket::from_buffer(&mut req_buffer)?;
@@ -157,6 +181,28 @@ async fn handle_query(socket: &UdpSocket) -> Result<()> {
     Ok(())
 }
 
+/// Handle a single incoming packet
+async fn handle_query(socket: Arc<UdpSocket>) -> Result<()> {
+    // With a socket ready, we can go ahead and read a packet. This will
+    // block until one is received.
+    let mut req_buffer = BytePacketBuffer::new();
+
+    // The `recv_from` function will write the data into the provided buffer,
+    // and return the length of the data read as well as the source address.
+    // We're not interested in the length, but we need to keep track of the
+    // source in order to send our reply later on.
+    let (_, src) = socket.recv_from(&mut req_buffer.buf).await?;
+
+    tokio::spawn(async move {
+        match handle_request(socket, req_buffer, src).await {
+            Ok(_) => {}
+            Err(e) => eprintln!("An error occurred: {}", e),
+        }
+    });
+
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let socket = Arc::new(UdpSocket::bind(("127.0.0.1", PORT)).await?);
@@ -164,11 +210,9 @@ async fn main() -> Result<()> {
 
     loop {
         let socket = socket.clone();
-        tokio::spawn(async move {
-            match handle_query(&socket).await {
-                Ok(_) => {}
-                Err(e) => eprintln!("An error occurred: {}", e),
-            }
-        });
+        match handle_query(socket).await {
+            Ok(_) => {}
+            Err(e) => eprintln!("An error occurred: {}", e),
+        }
     }
 }

@@ -8,4 +8,6 @@ edition = "2021"
 async-recursion = "1.0.4"
 dns_utils = { path = "../crates/dns-utils" }
 shared = { path = "../crates/shared" }
+db = { path = "../crates/db" }
+xdns_data = { path = "../crates/xdns-data" }
 tokio = { version = "1.29.1", features = ["net", "macros", "rt-multi-thread", "time"] }
