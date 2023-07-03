@@ -8,7 +8,12 @@ use crate::utils::subdomain_cast::SubDomainCast;
 use async_recursion::async_recursion;
 use db::{Repository, XDNSRepository};
 use dns_utils::prelude::*;
+use lazy_static::lazy_static;
+use rayon::prelude::*;
 use shared::prelude::*;
+use std::collections::HashSet;
+use std::fs::File;
+use std::io::Read;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::net::UdpSocket;
@@ -16,6 +21,31 @@ use xdns_data::prelude::Type;
 
 const SERVER: (&str, u16) = ("1.1.1.1", 53);
 const PORT: u16 = 53;
+const BLACKLIST_FILE: &str = "blacklist.txt";
+
+lazy_static! {
+    static ref BLACKLIST: HashSet<String> =
+        read_blacklisted_domains().expect("Failed to read blacklist file, make sure it exists");
+}
+
+fn read_blacklisted_domains() -> Result<HashSet<String>> {
+    let mut file = File::open(BLACKLIST_FILE)?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+
+    let domains: HashSet<String> = contents
+        .lines()
+        .par_bridge()
+        .into_par_iter()
+        .map(|line| line.to_string())
+        .collect();
+
+    Ok(domains)
+}
+
+fn get_blacklist() -> &'static HashSet<String> {
+    &BLACKLIST
+}
 
 #[async_recursion]
 async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Result<DnsPacket> {
@@ -36,6 +66,12 @@ async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Res
             packet
         }
     };
+
+    if get_blacklist().contains(qname) {
+        println!("Attempted lookup of blacklisted domain: {:?}", qname);
+        packet.header.rescode = ResultCode::REFUSED;
+        return Ok(packet.make_returnable());
+    }
 
     if qname.ends_with(".o") {
         let db = Repository::new().await;
@@ -68,15 +104,11 @@ async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Res
                         let mut packet = packet.clone();
                         packet.questions = vec![DnsQuestion::new(
                             record.get_host().unwrap().to_string(),
-                            qtype
+                            qtype,
                         )];
                         packet.answers = Vec::new();
-                        let res = lookup(
-                            record.get_host().unwrap(),
-                            qtype,
-                            Some(packet.clone()),
-                        )
-                        .await;
+                        let res =
+                            lookup(record.get_host().unwrap(), qtype, Some(packet.clone())).await;
 
                         if let Ok(res) = res {
                             cname_resolves.push(res);
@@ -205,6 +237,7 @@ async fn handle_query(socket: Arc<UdpSocket>) -> Result<()> {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    get_blacklist();
     let socket = Arc::new(UdpSocket::bind(("127.0.0.1", PORT)).await?);
     println!("XDNS listening on port {}", PORT);
 

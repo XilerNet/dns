@@ -26,7 +26,7 @@ impl TryInto<DnsRecord> for SubDomainCast {
                 ttl: self.0.ttl,
                 addr: self.0.rdata.parse()?,
             },
-            Type::NS  => DnsRecord::NS {
+            Type::NS => DnsRecord::NS {
                 domain: self.0.domain,
                 ttl: self.0.ttl,
                 host: self.0.rdata,
