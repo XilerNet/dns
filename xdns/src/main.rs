@@ -77,8 +77,12 @@ async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Res
         let db = Repository::new().await;
         let segments = qname.split(".").collect::<Vec<&str>>();
         let domain = segments[segments.len() - 2..].join(".");
-        let subdomain = segments[..segments.len() - 2].join(".");
-        println!("Looking up {:?} {:?}", domain, subdomain);
+        let mut subdomain = segments[..segments.len() - 2].join(".");
+
+        if subdomain.is_empty() {
+            subdomain = "@".to_string();
+        }
+
         let subdomains = match db.get_subdomain(&domain, &subdomain).await {
             Ok(subdomains) => subdomains,
             Err(e) => {
