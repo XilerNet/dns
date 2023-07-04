@@ -41,7 +41,7 @@ impl SubDomain {
     ///
     /// Whether the subdomain is valid.
     pub fn is_valid_subdomain(input: &str) -> bool {
-        if input == "." || input == "*." {
+        if input == "@." || input == "*." {
             return true;
         }
 

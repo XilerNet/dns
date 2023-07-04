@@ -7,8 +7,8 @@ pub struct SubDomainCast(SubDomain);
 
 impl SubDomainCast {
     fn get_domain(&self) -> String {
-        if self.0.subdomain != "@" {
-            return format!("{}.{}", self.0.subdomain, self.0.domain);
+        if self.0.subdomain != "@." {
+            return format!("{}{}", self.0.subdomain, self.0.domain);
         }
 
         self.0.domain.to_string()

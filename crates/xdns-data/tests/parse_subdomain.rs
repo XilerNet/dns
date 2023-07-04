@@ -7,6 +7,10 @@ fn parse_subdomain_valid() {
     let parsed = SubDomain::parse(input);
 
     assert!(parsed.is_ok());
+
+    let parsed = parsed.unwrap();
+    assert_eq!(parsed.domain, "example.o");
+    assert_eq!(parsed.subdomain, "example.");
 }
 
 #[test]
@@ -19,7 +23,7 @@ fn parse_subdomain_valid_one_character() {
 
 #[test]
 fn parse_subdomain_valid_root() {
-    let input = "DNS example.o . CNAME IN 30 example.com";
+    let input = "DNS example.o @. CNAME IN 30 example.com";
     let parsed = SubDomain::parse(input);
 
     assert!(parsed.is_ok());
