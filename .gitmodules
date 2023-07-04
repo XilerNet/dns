@@ -1,0 +1,3 @@
+[submodule "ord"]
+	path = ord
+	url = git@github.com:XilerNet/ord.git
