@@ -7,6 +7,7 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub inscription: String,
+    pub address: String,
     pub domain: String,
     #[sea_orm(column_type = "Binary(BlobSize::Blob(None))")]
     pub data: Vec<u8>,

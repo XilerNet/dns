@@ -17,6 +17,7 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
+                    .col(ColumnDef::new(Subdomain::Address).string().not_null())
                     .col(ColumnDef::new(Subdomain::Domain).string().not_null())
                     .col(ColumnDef::new(Subdomain::Subdomain).date().not_null())
                     .col(ColumnDef::new(Subdomain::Rtype).string().not_null())
@@ -45,6 +46,16 @@ impl MigrationTrait for Migration {
                     .col(Subdomain::Subdomain)
                     .to_owned(),
             )
+            .await?;
+
+        manager
+            .create_index(
+                Index::create()
+                    .table(Subdomain::Table)
+                    .name("idx_subdomain_address")
+                    .col(Subdomain::Address)
+                    .to_owned(),
+            )
             .await
     }
 
@@ -60,6 +71,8 @@ enum Subdomain {
     Table,
     #[iden(rename = "inscription")]
     Inscription,
+    #[iden(rename = "address")]
+    Address,
     #[iden(rename = "domain")]
     Domain,
     #[iden(rename = "subdomain")]

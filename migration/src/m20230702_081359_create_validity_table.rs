@@ -17,6 +17,7 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
+                    .col(ColumnDef::new(Validity::Address).string().not_null())
                     .col(
                         ColumnDef::new(Validity::Domain)
                             .string()
@@ -37,6 +38,16 @@ impl MigrationTrait for Migration {
                     .col(Validity::Domain)
                     .to_owned(),
             )
+            .await?;
+
+        manager
+            .create_index(
+                Index::create()
+                    .table(Validity::Table)
+                    .name("idx_validity_address")
+                    .col(Validity::Address)
+                    .to_owned(),
+            )
             .await
     }
 
@@ -53,6 +64,8 @@ enum Validity {
     Table,
     #[iden(rename = "inscription")]
     Inscription,
+    #[iden(rename = "address")]
+    Address,
     #[iden(rename = "domain")]
     Domain,
     #[iden(rename = "algorithm")]

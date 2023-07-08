@@ -17,6 +17,7 @@ impl MigrationTrait for Migration {
                             .not_null()
                             .primary_key(),
                     )
+                    .col(ColumnDef::new(Domain::Address).string().not_null())
                     .col(
                         ColumnDef::new(Domain::Name)
                             .string()
@@ -36,6 +37,16 @@ impl MigrationTrait for Migration {
                     .col(Domain::Name)
                     .to_owned(),
             )
+            .await?;
+
+        manager
+            .create_index(
+                Index::create()
+                    .table(Domain::Table)
+                    .name("idx_domain_address")
+                    .col(Domain::Address)
+                    .to_owned(),
+            )
             .await
     }
 
@@ -51,6 +62,8 @@ enum Domain {
     Table,
     #[iden(rename = "inscription")]
     Inscription,
+    #[iden(rename = "address")]
+    Address,
     #[iden(rename = "name")]
     Name,
     #[iden(rename = "valid_from")]
