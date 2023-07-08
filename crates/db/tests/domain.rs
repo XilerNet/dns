@@ -2,11 +2,7 @@ use db::XDNSRepository;
 use shared::time::system_time_from_epoch_seconds;
 use xdns_data::models::Domain;
 
-#[tokio::test]
-async fn add_and_get() {
-    let db = db::Repository::new_memory().await;
-    db.migrate().await;
-
+pub async fn add_domain(db: &db::Repository) {
     let domain = Domain {
         name: "example.o".to_string(),
         valid_from: system_time_from_epoch_seconds(chrono::Utc::now().timestamp() as u64),
@@ -19,7 +15,15 @@ async fn add_and_get() {
             &domain,
         )
         .await;
+
     assert!(result);
+}
+
+#[tokio::test]
+async fn add_and_get() {
+    let db = db::Repository::new_memory().await;
+    db.migrate().await;
+    add_domain(&db).await;
 
     let result = db.get_domain("example.o").await;
     assert!(result.is_ok());

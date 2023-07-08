@@ -224,7 +224,6 @@ async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Res
         let packet = packet.make_returnable();
 
         for answer in packet.answers.iter() {
-            println!("Caching (not .o) {:?}", answer.get_domain());
             CACHE.lock().await.insert(
                 answer.get_domain().to_string(),
                 answer.clone(),

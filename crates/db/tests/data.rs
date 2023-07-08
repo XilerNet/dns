@@ -1,5 +1,10 @@
 use db::XDNSRepository;
-use xdns_data::models::Data;
+use xdns_data::models::{Data};
+
+#[path = "./domain.rs"]
+mod domain;
+
+use domain::add_domain;
 
 const INSCRIPTION_ID: &'static str =
     "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0";
@@ -7,6 +12,7 @@ const INSCRIPTION_ID: &'static str =
 async fn db_setup_data_boilerplate() -> db::Repository {
     let db = db::Repository::new_memory().await;
     db.migrate().await;
+    add_domain(&db).await;
 
     for i in 0..10 {
         let data = Data {

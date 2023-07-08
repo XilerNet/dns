@@ -16,6 +16,7 @@ use xdns_data::models::{Credentials, Data, Domain, SubDomain, Validity, Validity
 use crate::traits::Repository;
 
 const FILENAME: &str = "sqlite:./xdns.db?mode=rwc";
+const DOMAIN_LIFETIME: u64 = 31536000; // 1 year
 
 pub struct SqliteRepository {
     pub connection: DatabaseConnection,
@@ -37,18 +38,35 @@ impl SqliteRepository {
     }
 
     async fn get_validity_model(&self, domain: &str) -> Result<Option<validity::Model>> {
+        let address = self.get_domain_address(domain).await?;
         Ok(self
-            .get_first_entity_by(validity::Entity, validity::Column::Domain.eq(domain))
+            .get_first_entity_by(validity::Entity, validity::Column::Domain.eq(domain)
+                .and(validity::Column::Address.eq(address)))
             .await?)
     }
 
-    fn parse_domain_model(domain_data: Option<domain::Model>) -> Result<(String, Domain)> {
+    async fn domain_lifetime_check(&self, model: &domain::Model) -> Result<()> {
+        let valid_from = model.valid_from.parse::<u64>()?;
+
+        let to = system_time_from_epoch_seconds(valid_from + DOMAIN_LIFETIME);
+        let now = SystemTime::now();
+
+        if now > to {
+            self.remove_domain_by_inscription(&model.inscription).await;
+            return Err("Domain expired".into());
+        }
+
+        Ok(())
+    }
+
+    async fn parse_domain_model(&self, domain_data: Option<domain::Model>) -> Result<(String, Domain)> {
         if matches!(domain_data, None) {
             return Err("Domain not found".into());
         }
 
         let domain_data = domain_data.unwrap();
         let valid_from = domain_data.valid_from.parse::<u64>()?;
+        self.domain_lifetime_check(&domain_data).await?;
 
         Ok((
             domain_data.address,
@@ -111,21 +129,36 @@ impl Repository for SqliteRepository {
         let domain_data = self
             .get_first_entity_by(domain::Entity, domain::Column::Name.eq(domain))
             .await?;
-        Self::parse_domain_model(domain_data)
+        self.parse_domain_model(domain_data).await
     }
 
     async fn get_domain_by_inscription(&self, inscription: &str) -> Result<(String, Domain)> {
         let domain_data = self
             .get_first_entity_by(domain::Entity, domain::Column::Inscription.eq(inscription))
             .await?;
-        Self::parse_domain_model(domain_data)
+        self.parse_domain_model(domain_data).await
     }
 
     async fn get_domain_by_address(&self, address: &str) -> Result<Domain> {
         let domain_data = self
             .get_first_entity_by(domain::Entity, domain::Column::Address.eq(address))
             .await?;
-        Self::parse_domain_model(domain_data).map(|(_, domain)| domain)
+        self.parse_domain_model(domain_data).await.map(|(_, domain)| domain)
+    }
+
+    async fn get_domain_address(&self, domain: &str) -> Result<String> {
+        let domain_data = self
+            .get_first_entity_by(domain::Entity, domain::Column::Name.eq(domain))
+            .await?;
+
+        if domain_data.is_none() {
+            return Err("Domain not found".into());
+        }
+
+        let domain_data = domain_data.unwrap();
+        self.domain_lifetime_check(&domain_data).await?;
+
+        Ok(domain_data.address)
     }
 
     async fn add_domain(&self, address: &str, inscription: &str, domain: &Domain) -> bool {
@@ -135,14 +168,26 @@ impl Repository for SqliteRepository {
             .unwrap()
             .as_secs();
 
-        let domain = domain::ActiveModel {
+        let domain_model = domain::ActiveModel {
             address: Set(address.to_string()),
             name: Set(domain.name.to_string()),
             valid_from: Set(valid_from.to_string()),
             inscription: Set(inscription.to_string()),
         };
 
-        let res = domain::Entity::insert(domain).exec(&self.connection).await;
+        let existing_domain = self.get_domain(domain.name.as_ref()).await;
+
+        if existing_domain.is_ok() {
+            let existing_domain = existing_domain.unwrap();
+
+            if existing_domain.0 != address || existing_domain.1.valid_from > domain.valid_from {
+                return false;
+            }
+
+            self.remove_domain(domain.name.as_ref()).await;
+        }
+
+        let res = domain::Entity::insert(domain_model).exec(&self.connection).await;
 
         matches!(res, Ok(_))
     }
@@ -189,11 +234,14 @@ impl Repository for SqliteRepository {
         domain: &str,
         subdomain: &str,
     ) -> Result<Vec<(String, SubDomain)>> {
+        let address = self.get_domain_address(domain).await?;
+
         let subdomains = subdomain::Entity::find()
             .filter(
                 subdomain::Column::Domain
                     .eq(domain)
-                    .and(subdomain::Column::Subdomain.eq(subdomain)),
+                    .and(subdomain::Column::Subdomain.eq(subdomain))
+                    .and(subdomain::Column::Address.eq(address)),
             )
             .all(&self.connection)
             .await?;
@@ -370,8 +418,10 @@ impl Repository for SqliteRepository {
     }
 
     async fn get_data(&self, domain: &str) -> Result<Vec<(String, Data)>> {
+        let address = self.get_domain_address(domain).await?;
         let data = data::Entity::find()
-            .filter(data::Column::Domain.eq(domain))
+            .filter(data::Column::Domain.eq(domain)
+                .and(data::Column::Address.eq(address)))
             .all(&self.connection)
             .await?;
 

@@ -1,12 +1,18 @@
 use db::XDNSRepository;
 use xdns_data::models::{Algorithm, Credentials, Validity, ValidityTransfer};
 
+#[path = "./domain.rs"]
+mod domain;
+
+use domain::add_domain;
+
 const INSCRIPTION_ID: &'static str =
     "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0";
 
 async fn db_setup_boilerplate() -> db::Repository {
     let db = db::Repository::new_memory().await;
     db.migrate().await;
+    add_domain(&db).await;
     add_validity_helper(INSCRIPTION_ID, &db).await;
 
     db

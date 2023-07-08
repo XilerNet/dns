@@ -39,6 +39,17 @@ pub trait Repository {
     /// * `Result<Domain>` - The domain if it exists.
     async fn get_domain_by_address(&self, address: &str) -> Result<Domain>;
 
+    /// Get the address of the owner of a domain by the domain name.
+    ///
+    /// # Arguments
+    ///
+    /// * `domain` - The domain name to get the owner of.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<String>` - The address of the owner if it exists.
+    async fn get_domain_address(&self, domain: &str) -> Result<String>;
+
     /// Add a new domain to the repository.
     ///
     /// # Arguments
