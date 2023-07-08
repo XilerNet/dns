@@ -32,6 +32,29 @@ async fn add_and_get() {
 }
 
 #[tokio::test]
+async fn test_add_after_existing() {
+    let db = db::Repository::new_memory().await;
+    db.migrate().await;
+    add_domain(&db).await;
+
+
+    let domain = Domain {
+        name: "example.o".to_string(),
+        valid_from: system_time_from_epoch_seconds((chrono::Utc::now().timestamp() + 5) as u64),
+    };
+
+    let result = db
+        .add_domain(
+            "bc1pxwn9duraglsgr9f7q8ua33sx0vkq5wjft575h662995zf5m27v2qqxlf3k",
+            "9ee554b35ad5f94bb28cda94951f5c8500bc457b299b3b4a4fd9701f3147017ci0",
+            &domain,
+        )
+        .await;
+
+    assert!(!result);
+}
+
+#[tokio::test]
 async fn get_by_inscription_id() {
     let inscription_id = "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0";
     let valid_from = system_time_from_epoch_seconds(chrono::Utc::now().timestamp() as u64);
