@@ -18,7 +18,13 @@ async fn add_validity_helper(id: &str, db: &db::Repository) {
         credentials: Credentials::new(Algorithm::Ed25519, "xiler".to_string()),
     };
 
-    let result = db.add_validity(id, validity).await;
+    let result = db
+        .add_validity(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+            id,
+            validity,
+        )
+        .await;
     assert!(result);
 }
 
@@ -34,7 +40,11 @@ async fn add_validity() {
         };
 
         let result = db
-            .add_validity(&(i.to_string() + INSCRIPTION_ID), validity)
+            .add_validity(
+                "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+                &(i.to_string() + INSCRIPTION_ID),
+                validity,
+            )
             .await;
         assert_eq!(result, i == 0);
     }
@@ -48,9 +58,9 @@ async fn get_validity() {
     assert!(result.is_ok());
 
     let result = result.unwrap();
-    assert_eq!(result.domain, "example.o");
-    assert_eq!(result.credentials.algorithm, Algorithm::Ed25519);
-    assert_eq!(result.credentials.public_key, "xiler");
+    assert_eq!(result.1.domain, "example.o");
+    assert_eq!(result.1.credentials.algorithm, Algorithm::Ed25519);
+    assert_eq!(result.1.credentials.public_key, "xiler");
 }
 
 #[tokio::test]
@@ -61,9 +71,9 @@ async fn get_validity_by_inscription() {
     assert!(result.is_ok());
 
     let result = result.unwrap();
-    assert_eq!(result.domain, "example.o");
-    assert_eq!(result.credentials.algorithm, Algorithm::Ed25519);
-    assert_eq!(result.credentials.public_key, "xiler");
+    assert_eq!(result.1.domain, "example.o");
+    assert_eq!(result.1.credentials.algorithm, Algorithm::Ed25519);
+    assert_eq!(result.1.credentials.public_key, "xiler");
 }
 
 #[tokio::test]
@@ -102,9 +112,9 @@ async fn update_validity() {
     assert!(result.is_ok());
 
     let result = result.unwrap();
-    assert_eq!(result.domain, "example.o");
-    assert_eq!(result.credentials.algorithm, Algorithm::Ed25519);
-    assert_eq!(result.credentials.public_key, "hello");
+    assert_eq!(result.1.domain, "example.o");
+    assert_eq!(result.1.credentials.algorithm, Algorithm::Ed25519);
+    assert_eq!(result.1.credentials.public_key, "hello");
 }
 
 #[tokio::test]
@@ -133,7 +143,11 @@ async fn update_validity_by_inscription() {
     };
 
     let result = db
-        .update_validity_by_inscription(INSCRIPTION_ID, transfer)
+        .update_validity_by_inscription(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+            INSCRIPTION_ID,
+            transfer,
+        )
         .await;
     assert!(result);
 
@@ -141,9 +155,9 @@ async fn update_validity_by_inscription() {
     assert!(result.is_ok());
 
     let result = result.unwrap();
-    assert_eq!(result.domain, "xiler.o");
-    assert_eq!(result.credentials.algorithm, Algorithm::Ed25519);
-    assert_eq!(result.credentials.public_key, "hello");
+    assert_eq!(result.1.domain, "xiler.o");
+    assert_eq!(result.1.credentials.algorithm, Algorithm::Ed25519);
+    assert_eq!(result.1.credentials.public_key, "hello");
 }
 
 #[tokio::test]
@@ -156,7 +170,11 @@ async fn update_validity_by_inscription_delete() {
     };
 
     let result = db
-        .update_validity_by_inscription(INSCRIPTION_ID, transfer)
+        .update_validity_by_inscription(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+            INSCRIPTION_ID,
+            transfer,
+        )
         .await;
     assert!(result);
 

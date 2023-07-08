@@ -240,4 +240,37 @@ impl DnsRecord {
             _ => None,
         }
     }
+
+    pub fn get_ttl(&self) -> u32 {
+        match *self {
+            DnsRecord::A { ttl, .. } => ttl,
+            DnsRecord::AAAA { ttl, .. } => ttl,
+            DnsRecord::NS { ttl, .. } => ttl,
+            DnsRecord::CNAME { ttl, .. } => ttl,
+            DnsRecord::MX { ttl, .. } => ttl,
+            DnsRecord::UNKNOWN { ttl, .. } => ttl,
+        }
+    }
+
+    pub fn get_domain(&self) -> &str {
+        match *self {
+            DnsRecord::A { ref domain, .. } => domain,
+            DnsRecord::AAAA { ref domain, .. } => domain,
+            DnsRecord::NS { ref domain, .. } => domain,
+            DnsRecord::CNAME { ref domain, .. } => domain,
+            DnsRecord::MX { ref domain, .. } => domain,
+            DnsRecord::UNKNOWN { ref domain, .. } => domain,
+        }
+    }
+
+    pub fn set_ttl(&mut self, new_ttl: u32) {
+        match *self {
+            DnsRecord::A { ref mut ttl, .. } => *ttl = new_ttl,
+            DnsRecord::AAAA { ref mut ttl, .. } => *ttl = new_ttl,
+            DnsRecord::NS { ref mut ttl, .. } => *ttl = new_ttl,
+            DnsRecord::CNAME { ref mut ttl, .. } => *ttl = new_ttl,
+            DnsRecord::MX { ref mut ttl, .. } => *ttl = new_ttl,
+            DnsRecord::UNKNOWN { ref mut ttl, .. } => *ttl = new_ttl,
+        }
+    }
 }

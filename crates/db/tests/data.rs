@@ -14,7 +14,13 @@ async fn db_setup_data_boilerplate() -> db::Repository {
             data: b"custom data".to_vec(),
         };
 
-        let result = db.add_data(&(i.to_string() + INSCRIPTION_ID), data).await;
+        let result = db
+            .add_data(
+                "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+                &(i.to_string() + INSCRIPTION_ID),
+                data,
+            )
+            .await;
         assert!(result);
     }
 
@@ -37,8 +43,12 @@ async fn get_data() {
     assert_eq!(result.len(), 10);
 
     for i in 0..10 {
-        assert_eq!(result[i].domain, "example.o");
-        assert_eq!(result[i].data, b"custom data");
+        assert_eq!(
+            result[i].0,
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5"
+        );
+        assert_eq!(result[i].1.domain, "example.o");
+        assert_eq!(result[i].1.data, b"custom data");
     }
 }
 
@@ -53,8 +63,12 @@ async fn get_data_by_inscription_id() {
         assert!(result.is_ok());
 
         let result = result.unwrap();
-        assert_eq!(result.domain, "example.o");
-        assert_eq!(result.data, b"custom data");
+        assert_eq!(
+            result.0,
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5"
+        );
+        assert_eq!(result.1.domain, "example.o");
+        assert_eq!(result.1.data, b"custom data");
     }
 }
 

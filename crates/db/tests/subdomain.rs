@@ -16,11 +16,18 @@ async fn add_subdomain() {
         valid_from,
     };
 
-    let result = db.add_domain(inscription_id, &domain).await;
+    let result = db
+        .add_domain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+            inscription_id,
+            &domain,
+        )
+        .await;
     assert!(result);
 
     let result = db
         .add_subdomain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             inscription_id_2,
             SubDomain {
                 domain: "example.o".to_string(),
@@ -50,11 +57,18 @@ async fn get_subdomain() {
         valid_from,
     };
 
-    let result = db.add_domain(inscription_id, &domain).await;
+    let result = db
+        .add_domain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+            inscription_id,
+            &domain,
+        )
+        .await;
     assert!(result);
 
     let result = db
         .add_subdomain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             inscription_id_2,
             SubDomain {
                 domain: "example.o".to_string(),
@@ -69,6 +83,7 @@ async fn get_subdomain() {
 
     let result2 = db
         .add_subdomain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             inscription_id_3,
             SubDomain {
                 domain: "example.o".to_string(),
@@ -94,7 +109,7 @@ async fn get_subdomain() {
     let data = vec!["example.o", "example2.o"];
 
     'data: for d in data.iter() {
-        for subdomain in subdomains.iter() {
+        for (_, subdomain) in subdomains.iter() {
             if subdomain.rdata == *d {
                 assert!(true);
                 continue 'data;
@@ -117,11 +132,18 @@ async fn get_subdomain_by_inscription() {
         valid_from,
     };
 
-    let result = db.add_domain(inscription_id, &domain).await;
+    let result = db
+        .add_domain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+            inscription_id,
+            &domain,
+        )
+        .await;
     assert!(result);
 
     let result = db
         .add_subdomain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             inscription_id_2,
             SubDomain {
                 domain: "example.o".to_string(),
@@ -139,7 +161,7 @@ async fn get_subdomain_by_inscription() {
     let subdomain = db.get_subdomain_by_inscription(inscription_id_2).await;
     assert!(subdomain.is_ok());
 
-    let subdomain = subdomain.unwrap();
+    let subdomain = subdomain.unwrap().1;
     assert_eq!(subdomain.rdata, "example.o");
 }
 
@@ -157,11 +179,18 @@ async fn remove_subdomains() {
         valid_from,
     };
 
-    let result = db.add_domain(inscription_id, &domain).await;
+    let result = db
+        .add_domain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+            inscription_id,
+            &domain,
+        )
+        .await;
     assert!(result);
 
     let result = db
         .add_subdomain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             inscription_id_2,
             SubDomain {
                 domain: "example.o".to_string(),
@@ -176,6 +205,7 @@ async fn remove_subdomains() {
 
     let result2 = db
         .add_subdomain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             inscription_id_3,
             SubDomain {
                 domain: "example.o".to_string(),
@@ -208,11 +238,18 @@ async fn remove_subdomain() {
         valid_from,
     };
 
-    let result = db.add_domain(inscription_id, &domain).await;
+    let result = db
+        .add_domain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+            inscription_id,
+            &domain,
+        )
+        .await;
     assert!(result);
 
     let result = db
         .add_subdomain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             inscription_id_2,
             SubDomain {
                 domain: "example.o".to_string(),

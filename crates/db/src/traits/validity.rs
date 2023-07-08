@@ -4,28 +4,33 @@ use xdns_data::models::{Validity, ValidityTransfer};
 use crate::traits::Repository;
 
 pub trait ValidityRepository {
-    async fn add(&self, inscription: &str, validity: Validity) -> bool;
-    async fn get(&self, domain: &str) -> Result<Validity>;
-    async fn get_by_inscription(&self, inscription: &str) -> Result<Validity>;
+    async fn add(&self, address: &str, inscription: &str, validity: Validity) -> bool;
+    async fn get(&self, domain: &str) -> Result<(String, Validity)>;
+    async fn get_by_inscription(&self, inscription: &str) -> Result<(String, Validity)>;
     async fn remove(&self, domain: &str) -> bool;
     async fn remove_by_inscription(&self, inscription: &str) -> bool;
     async fn update(&self, validity: ValidityTransfer) -> bool;
-    async fn update_by_inscription(&self, inscription: &str, validity: ValidityTransfer) -> bool;
+    async fn update_by_inscription(
+        &self,
+        address: &str,
+        inscription: &str,
+        validity: ValidityTransfer,
+    ) -> bool;
 }
 
 impl<T: Repository> ValidityRepository for T {
     /// Type specific alias for [`Repository::add_validity`].
-    async fn add(&self, inscription: &str, validity: Validity) -> bool {
-        self.add_validity(inscription, validity).await
+    async fn add(&self, address: &str, inscription: &str, validity: Validity) -> bool {
+        self.add_validity(address, inscription, validity).await
     }
 
     /// Type specific alias for [`Repository::get_validity`].
-    async fn get(&self, domain: &str) -> Result<Validity> {
+    async fn get(&self, domain: &str) -> Result<(String, Validity)> {
         self.get_validity(domain).await
     }
 
     /// Type specific alias for [`Repository::get_validity_by_inscription`].
-    async fn get_by_inscription(&self, inscription: &str) -> Result<Validity> {
+    async fn get_by_inscription(&self, inscription: &str) -> Result<(String, Validity)> {
         self.get_validity_by_inscription(inscription).await
     }
 
@@ -45,8 +50,13 @@ impl<T: Repository> ValidityRepository for T {
     }
 
     /// Type specific alias for [`Repository::update_validity_by_inscription`].
-    async fn update_by_inscription(&self, inscription: &str, validity: ValidityTransfer) -> bool {
-        self.update_validity_by_inscription(inscription, validity)
+    async fn update_by_inscription(
+        &self,
+        address: &str,
+        inscription: &str,
+        validity: ValidityTransfer,
+    ) -> bool {
+        self.update_validity_by_inscription(address, inscription, validity)
             .await
     }
 }

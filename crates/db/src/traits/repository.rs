@@ -14,8 +14,8 @@ pub trait Repository {
     ///
     /// # Returns
     ///
-    /// * `Result<Domain>` - The domain if it exists.
-    async fn get_domain(&self, domain: &str) -> Result<Domain>;
+    /// * `Result<(Address, Domain)>` - The domain if it exists.
+    async fn get_domain(&self, domain: &str) -> Result<(String, Domain)>;
 
     /// Get an existing domain from the repository by inscription id.
     ///
@@ -25,8 +25,19 @@ pub trait Repository {
     ///
     /// # Returns
     ///
+    /// * `Result<(Address, Domain)>` - The domain if it exists.
+    async fn get_domain_by_inscription(&self, inscription: &str) -> Result<(String, Domain)>;
+
+    /// Get an existing domain from the repository by address.
+    ///
+    /// # Arguments
+    ///
+    /// * `address` - The address of the domain to get.
+    ///
+    /// # Returns
+    ///
     /// * `Result<Domain>` - The domain if it exists.
-    async fn get_domain_by_inscription(&self, inscription: &str) -> Result<Domain>;
+    async fn get_domain_by_address(&self, address: &str) -> Result<Domain>;
 
     /// Add a new domain to the repository.
     ///
@@ -38,7 +49,7 @@ pub trait Repository {
     /// # Returns
     ///
     /// * `bool` - Whether the domain was added.
-    async fn add_domain(&self, inscription: &str, domain: &Domain) -> bool;
+    async fn add_domain(&self, address: &str, inscription: &str, domain: &Domain) -> bool;
 
     /// Remove an existing domain from the repository.
     ///
@@ -72,7 +83,7 @@ pub trait Repository {
     /// # Returns
     ///
     /// * `bool` - Whether the subdomain was added.
-    async fn add_subdomain(&self, inscription: &str, subdomain: SubDomain) -> bool;
+    async fn add_subdomain(&self, address: &str, inscription: &str, subdomain: SubDomain) -> bool;
 
     /// Get all existing subdomains from the repository that match the given domain.
     ///
@@ -83,8 +94,12 @@ pub trait Repository {
     ///
     /// # Returns
     ///
-    /// * `Result<Vec<SubDomain>>` - The subdomains if they exist.
-    async fn get_subdomain(&self, domain: &str, subdomain: &str) -> Result<Vec<SubDomain>>;
+    /// * `Result<Vec<(Address, Subdomain)>>` - The subdomains if they exist.
+    async fn get_subdomain(
+        &self,
+        domain: &str,
+        subdomain: &str,
+    ) -> Result<Vec<(String, SubDomain)>>;
 
     /// Get an existing subdomain from the repository by inscription id.
     ///
@@ -94,8 +109,8 @@ pub trait Repository {
     ///
     /// # Returns
     ///
-    /// * `Result<SubDomain>` - The subdomain if it exists.
-    async fn get_subdomain_by_inscription(&self, inscription: &str) -> Result<SubDomain>;
+    /// * `Result<(Address, Subdomain)>` - The subdomain if it exists.
+    async fn get_subdomain_by_inscription(&self, inscription: &str) -> Result<(String, SubDomain)>;
 
     /// Remove an existing subdomain from the repository.
     /// This will remove all subdomains that match the given domain and subdomain.
@@ -130,7 +145,7 @@ pub trait Repository {
     /// # Returns
     ///
     /// * `bool` - Whether the validity was added.
-    async fn add_validity(&self, inscription: &str, validity: Validity) -> bool;
+    async fn add_validity(&self, address: &str, inscription: &str, validity: Validity) -> bool;
 
     /// Get a validity from the repository by its domain.
     ///
@@ -140,8 +155,8 @@ pub trait Repository {
     ///
     /// # Returns
     ///
-    /// * `Result<Validity>` - The validity if it exists.
-    async fn get_validity(&self, domain: &str) -> Result<Validity>;
+    /// * `Result<(Address, Validity)>` - The validity if it exists.
+    async fn get_validity(&self, domain: &str) -> Result<(String, Validity)>;
 
     /// Get a validity from the repository by its inscription id.
     ///
@@ -151,8 +166,8 @@ pub trait Repository {
     ///
     /// # Returns
     ///
-    /// * `Result<Validity>` - The validity if it exists.
-    async fn get_validity_by_inscription(&self, inscription: &str) -> Result<Validity>;
+    /// * `Result<(Address, Validity)>` - The validity if it exists.
+    async fn get_validity_by_inscription(&self, inscription: &str) -> Result<(String, Validity)>;
 
     /// Remove a validity from the repository by its domain.
     ///
@@ -198,6 +213,7 @@ pub trait Repository {
     /// * `bool` - Whether the validity was updated.
     async fn update_validity_by_inscription(
         &self,
+        address: &str,
         inscription: &str,
         validity: ValidityTransfer,
     ) -> bool;
@@ -212,7 +228,7 @@ pub trait Repository {
     /// # Returns
     ///
     /// * `bool` - Whether the data was added.
-    async fn add_data(&self, inscription: &str, data: Data) -> bool;
+    async fn add_data(&self, address: &str, inscription: &str, data: Data) -> bool;
 
     /// Get all existing data from the repository that match the given domain.
     ///
@@ -222,8 +238,8 @@ pub trait Repository {
     ///
     /// # Returns
     ///
-    /// * `Result<Vec<Data>>` - The data if they exist. (can be empty)
-    async fn get_data(&self, domain: &str) -> Result<Vec<Data>>;
+    /// * `Result<Vec<(Address, Data)>>` - The data if they exist. (can be empty)
+    async fn get_data(&self, domain: &str) -> Result<Vec<(String, Data)>>;
 
     /// Get an existing data from the repository by inscription id.
     ///
@@ -233,8 +249,8 @@ pub trait Repository {
     ///
     /// # Returns
     ///
-    /// * `Result<Data>` - The data if it exists.
-    async fn get_data_by_inscription(&self, inscription: &str) -> Result<Data>;
+    /// * `Result<(Address, Data)>` - The data if it exists.
+    async fn get_data_by_inscription(&self, inscription: &str) -> Result<(String, Data)>;
 
     /// Remove an existing data from the repository.
     /// This will remove all data that match the given domain.

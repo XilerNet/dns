@@ -14,6 +14,7 @@ async fn add_and_get() {
 
     let result = db
         .add_domain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0",
             &domain,
         )
@@ -22,7 +23,7 @@ async fn add_and_get() {
 
     let result = db.get_domain("example.o").await;
     assert!(result.is_ok());
-    let result = result.unwrap();
+    let result = result.unwrap().1;
     assert_eq!(result.name, "example.o");
 }
 
@@ -38,13 +39,19 @@ async fn get_by_inscription_id() {
         valid_from,
     };
 
-    let result = db.add_domain(inscription_id, &domain).await;
+    let result = db
+        .add_domain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+            inscription_id,
+            &domain,
+        )
+        .await;
     assert!(result);
 
     let result = db.get_domain_by_inscription(inscription_id).await;
 
     assert!(result.is_ok());
-    let result = result.unwrap();
+    let result = result.unwrap().1;
     assert_eq!(result.name, "example.o");
     assert_eq!(
         result
@@ -77,6 +84,7 @@ async fn remove() {
 
     let result = db
         .add_domain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0",
             &domain,
         )
@@ -100,7 +108,13 @@ async fn remove_by_inscription() {
         valid_from: system_time_from_epoch_seconds(chrono::Utc::now().timestamp() as u64),
     };
 
-    let result = db.add_domain(inscription_id, &domain).await;
+    let result = db
+        .add_domain(
+            "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
+            inscription_id,
+            &domain,
+        )
+        .await;
     assert!(result);
 
     let result = db.remove_domain_by_inscription(inscription_id).await;

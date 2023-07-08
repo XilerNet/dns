@@ -5,6 +5,7 @@ extern crate dns_utils;
 extern crate shared;
 
 use crate::utils::subdomain_cast::SubDomainCast;
+use crate::utils::ExpiringMultiValueHashMap;
 use async_recursion::async_recursion;
 use db::{Repository, XDNSRepository};
 use dns_utils::prelude::*;
@@ -16,7 +17,9 @@ use std::fs::File;
 use std::io::Read;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use std::time::{Duration, Instant};
 use tokio::net::UdpSocket;
+use tokio::sync::Mutex;
 use xdns_data::prelude::Type;
 
 const SERVER: (&str, u16) = ("1.1.1.1", 53);
@@ -24,6 +27,8 @@ const PORT: u16 = 53;
 const BLACKLIST_FILE: &str = "blacklist.txt";
 
 lazy_static! {
+    static ref CACHE: Mutex<ExpiringMultiValueHashMap<String, DnsRecord>> =
+        Mutex::new(ExpiringMultiValueHashMap::new());
     static ref BLACKLIST: HashSet<String> =
         read_blacklisted_domains().expect("Failed to read blacklist file, make sure it exists");
 }
@@ -73,6 +78,69 @@ async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Res
         return Ok(packet.make_returnable());
     }
 
+    let cache = CACHE.lock().await;
+    if cache.contains_key(qname) {
+        println!("Cache hit for {:?}", qname);
+        let now = Instant::now();
+        let cached_records: Vec<DnsRecord> = cache
+            .get(qname)
+            .unwrap()
+            .iter()
+            .map(|(record, ttl)| {
+                let mut record = record.clone();
+                let passed = ttl
+                    .checked_duration_since(now)
+                    .unwrap_or(Duration::from_secs(0));
+                record.set_ttl(passed.as_secs() as u32);
+                record
+            })
+            .collect();
+
+        packet
+            .answers
+            .extend(cached_records.iter().map(|record| record.clone()));
+
+        let resolved_domains = cached_records
+            .iter()
+            .map(|record| record.get_domain())
+            .collect::<HashSet<&str>>();
+
+        let resolved_cnames: HashSet<&str> = cached_records
+            .iter()
+            .filter(|record| record.type_of() == QueryType::SUB(Type::CNAME))
+            .filter(|record| resolved_domains.contains(&record.get_host().unwrap()))
+            .map(|record| record.get_domain())
+            .collect();
+
+        drop(cache);
+
+        if qtype != QueryType::SUB(Type::CNAME) {
+            for record in cached_records.iter() {
+                if record.type_of() == QueryType::SUB(Type::CNAME) {
+                    if resolved_cnames.contains(&record.get_domain()) {
+                        continue;
+                    }
+
+                    let mut tmp_packet = packet.clone();
+                    tmp_packet.questions = vec![DnsQuestion::new(
+                        record.get_host().unwrap().to_string(),
+                        qtype,
+                    )];
+                    tmp_packet.answers = Vec::new();
+                    let res =
+                        lookup(record.get_host().unwrap(), qtype, Some(tmp_packet.clone())).await;
+
+                    if let Ok(res) = res {
+                        packet.answers.extend(res.answers);
+                    }
+                }
+            }
+        }
+
+        return Ok(packet.make_returnable());
+    }
+    drop(cache);
+
     if qname.ends_with(".o") {
         let db = Repository::new().await;
         let segments = qname.split(".").collect::<Vec<&str>>();
@@ -94,11 +162,19 @@ async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Res
         if subdomains.len() > 0 {
             let answers: Vec<DnsRecord> = subdomains
                 .into_iter()
-                .map(SubDomainCast::from)
+                .map(|s| SubDomainCast::from(s.1))
                 .map(|s| s.try_into())
                 .collect::<Result<Vec<DnsRecord>>>()?;
 
             packet.answers = answers;
+
+            for answer in packet.answers.iter() {
+                CACHE.lock().await.insert(
+                    answer.get_domain().to_string(),
+                    answer.clone(),
+                    Duration::from_secs(answer.get_ttl() as u64),
+                );
+            }
 
             if qtype != QueryType::SUB(Type::CNAME) {
                 let mut cname_resolves = Vec::new();
@@ -124,7 +200,9 @@ async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Res
                     packet.answers.extend(cname_resolve.answers);
                 }
             }
-            return Ok(packet.make_returnable());
+            let packet = packet.make_returnable();
+
+            return Ok(packet);
         }
 
         Ok(packet)
@@ -140,17 +218,21 @@ async fn lookup(qname: &str, qtype: QueryType, packet: Option<DnsPacket>) -> Res
         let mut res_buffer = BytePacketBuffer::new();
         socket.recv_from(&mut res_buffer.buf).await?;
 
-        let res_packet = DnsPacket::from_buffer(&mut res_buffer);
+        let res_packet = DnsPacket::from_buffer(&mut res_buffer)?;
+        packet.answers.extend(res_packet.answers.clone());
 
-        match res_packet {
-            Ok(res_packet) => {
-                for answer in res_packet.answers {
-                    packet.answers.push(answer);
-                }
-                Ok(packet.make_returnable())
-            }
-            e @ Err(_) => e,
+        let packet = packet.make_returnable();
+
+        for answer in packet.answers.iter() {
+            println!("Caching (not .o) {:?}", answer.get_domain());
+            CACHE.lock().await.insert(
+                answer.get_domain().to_string(),
+                answer.clone(),
+                Duration::from_secs(answer.get_ttl() as u64),
+            );
         }
+
+        Ok(packet)
     }
 }
 
@@ -244,6 +326,25 @@ async fn main() -> Result<()> {
     get_blacklist();
     let socket = Arc::new(UdpSocket::bind(("127.0.0.1", PORT)).await?);
     println!("XDNS listening on port {}", PORT);
+
+    tokio::spawn(async move {
+        let mut interval = tokio::time::interval(Duration::from_secs(1));
+        loop {
+            interval.tick().await;
+            let mut cache = CACHE.lock().await;
+            let cache_before_size = cache.size();
+            cache.cleanup().await;
+            let cache_after_size = cache.size();
+            drop(cache);
+
+            if cache_before_size != cache_after_size {
+                println!(
+                    "Cache cleanup removed {} entries",
+                    cache_before_size - cache_after_size
+                );
+            }
+        }
+    });
 
     loop {
         let socket = socket.clone();
