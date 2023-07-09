@@ -1,5 +1,5 @@
 use db::XDNSRepository;
-use xdns_data::models::{Data};
+use xdns_data::models::Data;
 
 #[path = "./domain.rs"]
 mod domain;

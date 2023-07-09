@@ -3,6 +3,7 @@ use shared::common::Result;
 use crate::models::{Data, Domain, DomainDrop, Signature, SubDomain, Validity, ValidityTransfer};
 use crate::traits::Parser;
 
+#[derive(Debug)]
 pub enum DomainAction {
     Domain(Domain),
     Subdomain(SubDomain),

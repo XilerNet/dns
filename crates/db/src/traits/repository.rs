@@ -60,7 +60,7 @@ pub trait Repository {
     /// # Returns
     ///
     /// * `bool` - Whether the domain was added.
-    async fn add_domain(&self, address: &str, inscription: &str, domain: &Domain) -> bool;
+    async fn add_domain(&self, address: &str, inscription: &str, domain: Domain) -> bool;
 
     /// Remove an existing domain from the repository.
     ///

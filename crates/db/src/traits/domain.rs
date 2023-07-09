@@ -4,7 +4,7 @@ use xdns_data::models::Domain;
 use crate::traits::Repository;
 
 pub trait DomainRepository {
-    async fn add(&mut self, address: &str, inscription: &str, domain: &Domain) -> bool;
+    async fn add(&mut self, address: &str, inscription: &str, domain: Domain) -> bool;
     async fn get(&mut self, domain: &str) -> Result<(String, Domain)>;
     async fn get_by_inscription(&mut self, inscription: &str) -> Result<(String, Domain)>;
     async fn get_by_address(&mut self, address: &str) -> Result<Domain>;
@@ -14,7 +14,7 @@ pub trait DomainRepository {
 
 impl<T: Repository> DomainRepository for T {
     /// Type specific alias for [`Repository::add_domain`].
-    async fn add(&mut self, address: &str, inscription: &str, domain: &Domain) -> bool {
+    async fn add(&mut self, address: &str, inscription: &str, domain: Domain) -> bool {
         self.add_domain(address, inscription, domain).await
     }
 

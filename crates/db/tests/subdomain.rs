@@ -1,6 +1,6 @@
 use db::XDNSRepository;
 use xdns_data::models::subdomain::{Class, Type};
-use xdns_data::models::{ SubDomain};
+use xdns_data::models::SubDomain;
 
 #[path = "./domain.rs"]
 mod domain;

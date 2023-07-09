@@ -101,3 +101,37 @@ fn parse_multiple_actions() {
         assert!(matches!(action, DomainAction::Subdomain(_)));
     }
 }
+
+#[test]
+fn parse_domain_with_validity() {
+    let input = r#"
+        DOMAIN satoshi.o 1688852425
+        DOMAIN-VALIDITY satoshi.o ed25519 66D8C046FD99D155338B40155D22E24229C1D4D897BC5B327414DFD8D0946D5E
+        null null
+    "#;
+
+    let parsed = ActionParser::parse(input);
+    assert!(parsed.is_ok());
+
+    let parsed = parsed.unwrap();
+    assert_eq!(parsed.actions.len(), 2);
+
+    assert!(matches!(parsed.actions[0], DomainAction::Domain(_)));
+    assert!(matches!(parsed.actions[1], DomainAction::Validity(_)));
+}
+
+#[test]
+fn parse_dns_records() {
+    let input = r#"
+        DNS satoshi.o @. CNAME IN 60 xiler.net
+        DNS satoshi.o proxy. CNAME IN 60 dns-test-proxy-cname.xiler.net
+        DNS satishi.o local. A IN 60 127.0.0.1
+        null C0E53C29B279681E43989E46F4CD3269BF585F970F7EF94C222BC2148E712865C8707230C017455C6FC574838CF7EE585845A1B3EEC198FA50B01B5696039609
+    "#;
+
+    let parsed = ActionParser::parse(input);
+    assert!(parsed.is_ok());
+
+    let parsed = parsed.unwrap();
+    assert_eq!(parsed.actions.len(), 3);
+}

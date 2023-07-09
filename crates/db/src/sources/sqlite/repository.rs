@@ -15,7 +15,7 @@ use xdns_data::models::{Credentials, Data, Domain, SubDomain, Validity, Validity
 
 use crate::traits::Repository;
 
-const FILENAME: &str = "sqlite:./xdns.db?mode=rwc";
+const FILENAME: &str = "sqlite:/home/dns/.local/share/xiler/xdns.db?mode=rwc";
 const DOMAIN_LIFETIME: u64 = 31536000; // 1 year
 
 pub struct SqliteRepository {
@@ -40,8 +40,12 @@ impl SqliteRepository {
     async fn get_validity_model(&self, domain: &str) -> Result<Option<validity::Model>> {
         let address = self.get_domain_address(domain).await?;
         Ok(self
-            .get_first_entity_by(validity::Entity, validity::Column::Domain.eq(domain)
-                .and(validity::Column::Address.eq(address)))
+            .get_first_entity_by(
+                validity::Entity,
+                validity::Column::Domain
+                    .eq(domain)
+                    .and(validity::Column::Address.eq(address)),
+            )
             .await?)
     }
 
@@ -59,7 +63,10 @@ impl SqliteRepository {
         Ok(())
     }
 
-    async fn parse_domain_model(&self, domain_data: Option<domain::Model>) -> Result<(String, Domain)> {
+    async fn parse_domain_model(
+        &self,
+        domain_data: Option<domain::Model>,
+    ) -> Result<(String, Domain)> {
         if matches!(domain_data, None) {
             return Err("Domain not found".into());
         }
@@ -143,7 +150,9 @@ impl Repository for SqliteRepository {
         let domain_data = self
             .get_first_entity_by(domain::Entity, domain::Column::Address.eq(address))
             .await?;
-        self.parse_domain_model(domain_data).await.map(|(_, domain)| domain)
+        self.parse_domain_model(domain_data)
+            .await
+            .map(|(_, domain)| domain)
     }
 
     async fn get_domain_address(&self, domain: &str) -> Result<String> {
@@ -161,7 +170,7 @@ impl Repository for SqliteRepository {
         Ok(domain_data.address)
     }
 
-    async fn add_domain(&self, address: &str, inscription: &str, domain: &Domain) -> bool {
+    async fn add_domain(&self, address: &str, inscription: &str, domain: Domain) -> bool {
         let valid_from = domain
             .valid_from
             .duration_since(SystemTime::UNIX_EPOCH)
@@ -187,7 +196,9 @@ impl Repository for SqliteRepository {
             self.remove_domain(domain.name.as_ref()).await;
         }
 
-        let res = domain::Entity::insert(domain_model).exec(&self.connection).await;
+        let res = domain::Entity::insert(domain_model)
+            .exec(&self.connection)
+            .await;
 
         matches!(res, Ok(_))
     }
@@ -420,8 +431,11 @@ impl Repository for SqliteRepository {
     async fn get_data(&self, domain: &str) -> Result<Vec<(String, Data)>> {
         let address = self.get_domain_address(domain).await?;
         let data = data::Entity::find()
-            .filter(data::Column::Domain.eq(domain)
-                .and(data::Column::Address.eq(address)))
+            .filter(
+                data::Column::Domain
+                    .eq(domain)
+                    .and(data::Column::Address.eq(address)),
+            )
             .all(&self.connection)
             .await?;
 

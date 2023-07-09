@@ -12,7 +12,7 @@ pub async fn add_domain(db: &db::Repository) {
         .add_domain(
             "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0",
-            &domain,
+            domain,
         )
         .await;
 
@@ -37,7 +37,6 @@ async fn test_add_after_existing() {
     db.migrate().await;
     add_domain(&db).await;
 
-
     let domain = Domain {
         name: "example.o".to_string(),
         valid_from: system_time_from_epoch_seconds((chrono::Utc::now().timestamp() + 5) as u64),
@@ -47,7 +46,7 @@ async fn test_add_after_existing() {
         .add_domain(
             "bc1pxwn9duraglsgr9f7q8ua33sx0vkq5wjft575h662995zf5m27v2qqxlf3k",
             "9ee554b35ad5f94bb28cda94951f5c8500bc457b299b3b4a4fd9701f3147017ci0",
-            &domain,
+            domain,
         )
         .await;
 
@@ -70,7 +69,7 @@ async fn get_by_inscription_id() {
         .add_domain(
             "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             inscription_id,
-            &domain,
+            domain,
         )
         .await;
     assert!(result);
@@ -113,7 +112,7 @@ async fn remove() {
         .add_domain(
             "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             "6fb976ab49dcec017f1e201e84395983204ae1a7c2abf7ced0a85d692e442799i0",
-            &domain,
+            domain,
         )
         .await;
 
@@ -139,7 +138,7 @@ async fn remove_by_inscription() {
         .add_domain(
             "tb1pm3q4drt7suvdsfndz5uyge652xswl09nvshr7k00964xtchmnemqyuuvd5",
             inscription_id,
-            &domain,
+            domain,
         )
         .await;
     assert!(result);
