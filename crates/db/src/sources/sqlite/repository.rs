@@ -4,6 +4,7 @@ use sea_orm::ActiveValue::Set;
 use sea_orm::{
     ColumnTrait, ConnectOptions, Database, DatabaseConnection, DbErr, EntityTrait, QueryFilter,
 };
+use std::default::Default;
 use std::time::SystemTime;
 
 use entity::{data, subdomain};
@@ -231,6 +232,7 @@ impl Repository for SqliteRepository {
             class: Set(subdomain.class.to_string()),
             ttl: Set(subdomain.ttl as i32),
             rdata: Set(subdomain.rdata),
+            ..Default::default()
         };
 
         let res = subdomain::Entity::insert(subdomain)

@@ -1,8 +1,10 @@
 use shared::common::Result;
 use xdns_data::models::{Data, Domain, SubDomain, Validity, ValidityTransfer};
 
-pub trait Repository {
-    // TODO: Resolve warning related to self return
+pub trait Repository
+where
+    Self: Sized,
+{
     async fn new() -> Self;
     async fn new_memory() -> Self;
 

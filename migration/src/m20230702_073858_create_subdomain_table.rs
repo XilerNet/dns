@@ -12,11 +12,13 @@ impl MigrationTrait for Migration {
                     .table(Subdomain::Table)
                     .if_not_exists()
                     .col(
-                        ColumnDef::new(Subdomain::Inscription)
-                            .string()
+                        ColumnDef::new(Subdomain::Id)
+                            .integer()
                             .not_null()
+                            .auto_increment()
                             .primary_key(),
                     )
+                    .col(ColumnDef::new(Subdomain::Inscription).string().not_null())
                     .col(ColumnDef::new(Subdomain::Address).string().not_null())
                     .col(ColumnDef::new(Subdomain::Domain).string().not_null())
                     .col(ColumnDef::new(Subdomain::Subdomain).date().not_null())
@@ -24,6 +26,16 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Subdomain::Class).string().not_null())
                     .col(ColumnDef::new(Subdomain::Ttl).unsigned().not_null())
                     .col(ColumnDef::new(Subdomain::Rdata).string().not_null())
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_index(
+                Index::create()
+                    .table(Subdomain::Table)
+                    .name("idx_subdomain_inscription")
+                    .col(Subdomain::Inscription)
                     .to_owned(),
             )
             .await?;
@@ -69,6 +81,8 @@ impl MigrationTrait for Migration {
 #[derive(Iden)]
 enum Subdomain {
     Table,
+    #[iden(rename = "id")]
+    Id,
     #[iden(rename = "inscription")]
     Inscription,
     #[iden(rename = "address")]
