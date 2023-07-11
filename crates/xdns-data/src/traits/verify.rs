@@ -12,7 +12,7 @@ pub trait Verify: Debug {
     /// # Returns
     ///
     /// The verifier instance.
-    fn new(public_key: &[u8; 32]) -> Result<Self>
+    fn new(public_key: &[u8]) -> Result<Self>
     where
         Self: Sized;
 

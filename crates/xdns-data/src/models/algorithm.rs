@@ -1,12 +1,14 @@
 use shared::common::Error;
 
 use crate::algorithms::ed25519::Ed25519;
+use crate::algorithms::dilithium2::Dilithium2;
 use crate::traits::verify::Verify;
 
 #[derive(PartialEq, Eq, Debug, Clone, Hash, Copy)]
 pub enum Algorithm {
     // TODO: Implement Ed25519
     Ed25519,
+    Dilithium2,
     // For the future: Dilithium5,
 }
 
@@ -19,6 +21,7 @@ impl Algorithm {
     pub fn name(&self) -> &'static str {
         match self {
             Algorithm::Ed25519 => "ed25519",
+            Algorithm::Dilithium2 => "dilithium2",
         }
     }
 
@@ -35,6 +38,7 @@ impl Algorithm {
     pub fn get_verifier(&self, public_key: &[u8]) -> Result<Box<dyn Verify>, Error> {
         match self {
             Algorithm::Ed25519 => Ok(Box::new(Ed25519::new(public_key.try_into()?)?)),
+            Algorithm::Dilithium2 => Ok(Box::new(Dilithium2::new(public_key.try_into()?)?)),
         }
     }
 }
@@ -54,6 +58,7 @@ impl TryFrom<&str> for Algorithm {
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         match value {
             "ed25519" => Ok(Algorithm::Ed25519),
+            "dilithium2" => Ok(Algorithm::Dilithium2),
             _ => Err(format!("Unsupported algorithm: {}", value).into()),
         }
     }
