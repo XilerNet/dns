@@ -72,7 +72,6 @@ macro_rules! generate_algorithm_implementations {
     };
 }
 
-
 #[derive(PartialEq, Eq, Debug, Clone, Hash, Copy)]
 #[apply(generate_algorithm_implementations!)]
 pub enum Algorithm {
