@@ -1,2 +1,2 @@
-pub mod dilithium2;
+pub mod dilithium;
 pub mod ed25519;
