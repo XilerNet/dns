@@ -287,4 +287,17 @@ where
     ///
     /// * `bool` - Whether the data was removed.
     async fn remove_data_by_inscription(&self, inscription: &str) -> bool;
+
+    /// Attemts to transfer any inscription item to a new owner.
+    /// If the inscription id is not found in the repository, an Err(()) is returned.
+    ///
+    /// # Arguments
+    ///
+    /// * `inscription` - The inscription id of the item to transfer.
+    /// * `new_owner` - The new owner of the item.
+    ///
+    /// # Returns
+    ///
+    /// * `Result<bool, ()>` - Whether the transfer was successful. The boolean represents if the item was found but the transfer failed.
+    async fn transfer_inscription(&self, inscription: &str, new_owner: &str) -> Result<bool>;
 }

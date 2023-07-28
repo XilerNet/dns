@@ -16,7 +16,7 @@ use xdns_data::models::{Credentials, Data, Domain, SubDomain, Validity, Validity
 
 use crate::traits::Repository;
 
-const FILENAME: &str = "sqlite:/home/dns/.local/share/xiler/xdns.db?mode=rwc";
+const FILENAME: &str = "sqlite:/home/arthur/.local/share/xiler/xdns.db?mode=rwc";
 const DOMAIN_LIFETIME: u64 = 31536000; // 1 year
 
 pub struct SqliteRepository {
@@ -489,5 +489,29 @@ impl Repository for SqliteRepository {
             .await;
 
         matches!(res, Ok(_)) && res.unwrap().rows_affected != 0
+    }
+
+    /// The current sqlite implementation only allows transfers of domains.
+    /// When a domain is transfered all dns records are deleted and the dns validity is removed.
+    async fn transfer_inscription(&self, inscription: &str, new_address: &str) -> Result<bool> {
+        let domain = self.get_domain_by_inscription(inscription).await?.1;
+        let dns_validity = self.get_validity_model(&domain.name).await?;
+
+        if dns_validity.is_some() {
+            self.remove_validity(&domain.name).await;
+        }
+
+        let entity = domain::Entity::update(domain::ActiveModel {
+            inscription: Set(inscription.to_string()),
+            address: Set(new_address.to_string()),
+            ..Default::default()
+        });
+
+        let res = entity
+            .filter(domain::Column::Inscription.eq(inscription))
+            .exec(&self.connection)
+            .await;
+
+        Ok(matches!(res, Ok(_)))
     }
 }
