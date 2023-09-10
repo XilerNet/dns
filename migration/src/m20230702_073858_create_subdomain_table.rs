@@ -21,7 +21,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Subdomain::Inscription).string().not_null())
                     .col(ColumnDef::new(Subdomain::Address).string().not_null())
                     .col(ColumnDef::new(Subdomain::Domain).string().not_null())
-                    .col(ColumnDef::new(Subdomain::Subdomain).date().not_null())
+                    .col(ColumnDef::new(Subdomain::Subdomain).string().not_null())
                     .col(ColumnDef::new(Subdomain::Rtype).string().not_null())
                     .col(ColumnDef::new(Subdomain::Class).string().not_null())
                     .col(ColumnDef::new(Subdomain::Ttl).unsigned().not_null())
