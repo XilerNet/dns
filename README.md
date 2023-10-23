@@ -53,6 +53,10 @@ We will migrate the project to use the Ord library version 0.9.x to leverage the
 
 Implementing DNSSEC (Domain Name System Security Extensions) is a crucial step to enhance the security of our decentralized DNS network. This feature will enable the validation of DNS responses and allow public nodes to join the network securely.
 
+#### 4. DNS records chain check
+
+Check if the dns record its provided chain inscription id is valid. If not ignore record.
+
 ## Contributing
 
 We welcome contributions from the open-source community to help us improve Xiler DDNS.
