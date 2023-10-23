@@ -35,7 +35,7 @@ As of this alpha version, Xiler DDNS already includes:
 
 ## Getting Started
 
-To get started, just run the seaorm migrations and run `cargo run --bin xdns` and `cd ord && cargo run`.
+To get started, just run the seaorm migrations and run `cargo run --bin xdns` and `cd inscription-indexer && cargo run`.
 
 ## Upcoming Features
 
@@ -45,15 +45,11 @@ In the upcoming releases, we plan to implement several critical features to impr
 
 The "drop" operator will be implemented to allow DNS records and domains to be deleted. Will require a validity to be set.
 
-### 2. Migrate to Ord v0.9.x
-
-We will migrate the project to use the Ord library version 0.9.x to leverage the latest improvements and features while ensuring compatibility with the rest of the ecosystem.
-
-### 3. DNSSEC Support
+### 2. DNSSEC Support
 
 Implementing DNSSEC (Domain Name System Security Extensions) is a crucial step to enhance the security of our decentralized DNS network. This feature will enable the validation of DNS responses and allow public nodes to join the network securely.
 
-#### 4. DNS records chain check
+#### 3. DNS records chain check
 
 Check if the dns record its provided chain inscription id is valid. If not ignore record.
 
