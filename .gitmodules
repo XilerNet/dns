@@ -1,3 +1,6 @@
 [submodule "ord"]
 	path = ord
 	url = git@github.com:XilerNet/ord.git
+[submodule "inscription-indexer"]
+	path = inscription-indexer
+	url = git@github.com:XilerNet/dns-inscription-indexer.git

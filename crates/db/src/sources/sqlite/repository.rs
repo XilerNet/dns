@@ -16,8 +16,9 @@ use xdns_data::models::{Credentials, Data, Domain, SubDomain, Validity, Validity
 
 use crate::traits::Repository;
 
+// TODO: Get from env
 // const FILENAME: &str = "sqlite:/home/arthur/.local/share/xiler/xdns.db?mode=rwc";
-const FILENAME: &str = "postgresql://postgres:alderson@localhost:5432/bitcoin";
+const FILENAME: &str = "postgresql://postgres:alderson@localhost:5432/accounts";
 const DOMAIN_LIFETIME: u64 = 31536000; // 1 year
 
 pub struct SqliteRepository {
